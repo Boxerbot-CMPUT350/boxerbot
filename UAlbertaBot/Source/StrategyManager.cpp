@@ -241,8 +241,12 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
         goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Siege_Tank_Tank_Mode, 6));
         goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Goliath, numGoliath + 6));
         goal.push_back(std::pair<MetaType, int>(BWAPI::TechTypes::Tank_Siege_Mode, 1));
-    }
-    else
+    } 
+	else if (Config::Strategy::StrategyName == "Terran_MarineALLIN")
+	{
+		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 1));
+	}
+	else 
     {
         BWAPI::Broodwar->printf("Warning: No build order goal for Terran Strategy: %s", Config::Strategy::StrategyName.c_str());
     }
