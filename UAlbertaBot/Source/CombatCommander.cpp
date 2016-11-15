@@ -115,7 +115,7 @@ void CombatCommander::updateAttackSquads()
 
 void CombatCommander::updateDropSquads()
 {
-    if (Config::Strategy::StrategyName != "Protoss_Drop" && Config::Strategy::StrategyName != "Terran_Drop")
+    if (Config::Strategy::StrategyName != "Protoss_Drop" || Config::Strategy::StrategyName != "Terran_Drop")
     {
         return;
     }
