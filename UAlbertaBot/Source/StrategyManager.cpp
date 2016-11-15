@@ -205,6 +205,10 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
     int numWorkers      = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_SCV);
     int numCC           = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Command_Center);            
     int numMarines      = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Marine);
+	int numDropship		= UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Dropship);
+	int numStarport     = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Starport);
+	int numControlTower = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Control_Tower);
+	int numBarrack      = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Barracks);
 	int numMedics       = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Medic);
 	int numWraith       = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Wraith);
     int numVultures     = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Vulture);
@@ -242,9 +246,24 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
         goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Goliath, numGoliath + 6));
         goal.push_back(std::pair<MetaType, int>(BWAPI::TechTypes::Tank_Siege_Mode, 1));
     } 
-	else if (Config::Strategy::StrategyName == "Terran_MarineALLIN")
+	else if (Config::Strategy::StrategyName == "Terran_Drop")
 	{
-		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 1));
+		if (numBarrack < 3) {
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Barracks, numBarrack + 1));
+		}
+		if (numStarport < 1) {
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Starport, 1));
+		}
+		if (numControlTower != numStarport) { 
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Control_Tower, numStarport));
+		}
+		if (numMarines < 20) {
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
+		} 
+		if (numDropship < 3) {
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Dropship, numDropship + 1));
+		}
+		
 	}
 	else 
     {
