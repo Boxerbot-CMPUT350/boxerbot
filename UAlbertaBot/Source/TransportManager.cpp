@@ -9,6 +9,7 @@ TransportManager::TransportManager() :
 	, _maxCorner(-1,-1)
 	, _to(-1,-1)
 	, _from(-1,-1)
+	, _isFull(false)
 {
 }
 
@@ -127,11 +128,60 @@ void TransportManager::update()
 	{
 		calculateMapEdgeVertices();
 	}
-
+	loadTransport();
 	moveTroops();
 	moveTransport();
 	
 	drawTransportInformation();
+}
+
+void TransportManager::loadTransport()
+{
+	//Check to see if transport exist
+	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0))
+	{
+		return;
+	}
+	
+	// If I didn't finish loading the troops, wait
+	BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
+	if ((currentCommand.getType() == BWAPI::UnitCommandTypes::Load)
+		&& _transportShip->getLoadedUnits().size() <= 8)
+	{
+		return;
+	}
+
+	BWTA::BaseLocation * myBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
+
+	if (myBaseLocation && (_transportShip->getDistance(myBaseLocation->getPosition()) < 300)) {
+		BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
+
+		// if we've already told this unit to load, wait
+		if (currentCommand.getType() == BWAPI::UnitCommandTypes::Load)
+		{
+			return;
+		}
+
+		BWAPI::Broodwar->printf("I got here");
+		//Grab every unit that the player owns and load it in the dropship
+		for (auto & unit : BWAPI::Broodwar->self()->getUnits())
+		{
+			if (!unit->getType().isWorker() && !unit->getType().isMechanical() && !unit->getType().isBuilding() && (unit->getDistance(_transportShip->getPosition()) < 300))
+			{
+				if (_transportShip->canLoad(unit)) {
+					BWAPI::Broodwar->printf("There exist a unit to load");
+					//BWAPI::Broodwar->printf("Loading %s", unit->getType().getName());
+					//_transportShip->rightClick(unit);
+					_transportShip->load(unit, true);
+				}
+			}
+		}
+		if (_transportShip->getLoadedUnits().size() > 7) {
+			_isFull = true;
+		}
+	}
+
+
 }
 
 void TransportManager::moveTransport()
@@ -145,7 +195,7 @@ void TransportManager::moveTransport()
 	BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
 	if ((currentCommand.getType() == BWAPI::UnitCommandTypes::Unload_All 
 	 || currentCommand.getType() == BWAPI::UnitCommandTypes::Unload_All_Position)
-	 && _transportShip->getLoadedUnits().size() > 0)
+	 && _isFull)
 	{
 		return;
 	}
@@ -188,6 +238,7 @@ void TransportManager::moveTroops()
 
 		//else unload
 		_transportShip->unloadAll(_transportShip->getPosition());
+		_isFull = false;
 	}
 	
 }

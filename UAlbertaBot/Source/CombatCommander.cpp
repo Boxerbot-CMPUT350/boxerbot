@@ -94,7 +94,7 @@ void CombatCommander::updateIdleSquad()
 void CombatCommander::updateAttackSquads()
 {
     Squad & mainAttackSquad = _squadData.getSquad("MainAttack");
-
+	
     for (auto & unit : _combatUnits)
     {
         if (unit->getType() == BWAPI::UnitTypes::Zerg_Scourge && UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hydralisk) < 30)
@@ -111,11 +111,12 @@ void CombatCommander::updateAttackSquads()
 
     SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
     mainAttackSquad.setSquadOrder(mainAttackOrder);
+	
 }
 
 void CombatCommander::updateDropSquads()
 {
-    if (Config::Strategy::StrategyName != "Protoss_Drop" || Config::Strategy::StrategyName != "Terran_Drop")
+    if (Config::Strategy::StrategyName != "Terran_Drop")
     {
         return;
     }

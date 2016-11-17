@@ -17,11 +17,16 @@ class TransportManager : public MicroManager
 	std::vector<BWAPI::Position>	_waypoints;
 	BWAPI::Position					_to;
 	BWAPI::Position					_from;
-
+	bool							_isFull;
+	
 	void							calculateMapEdgeVertices();
 	void							drawTransportInformation(int x, int y);
 	void							moveTransport();
 	void							moveTroops();
+
+	//New functions
+	void							loadTransport();
+
 	BWAPI::Position                 getFleePosition(int clockwise=1);
 	void                            followPerimeter(int clockwise=1);
 	void							followPerimeter(BWAPI::Position to, BWAPI::Position from);
