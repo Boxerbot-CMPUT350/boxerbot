@@ -427,10 +427,46 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
         return tile;
     }
 
+	if (b.type == BWAPI::UnitTypes::Terran_Bunker) {
+		// Determines closest chokepoint to the Command Center.
+		BWTA::BaseLocation * selfBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
+		BWAPI::Position baseLocation = selfBaseLocation->getPosition();
+		BWTA::Chokepoint * baseChokepoint = BWTA::getNearestChokepoint(baseLocation);
+		BWAPI::Position chokeLocation = baseChokepoint->getCenter();
+		BWAPI::TilePosition tile = BWAPI::TilePosition(chokeLocation);
+
+		while (!BuildingPlacer::Instance().canBuildHere(tile, b)) {
+			if (baseLocation.x > chokeLocation.x) { tile.x += 1; }
+			if (baseLocation.x < chokeLocation.x) { tile.x -= 1; }
+			if (baseLocation.y > chokeLocation.y) { tile.y += 1; }
+			if (baseLocation.y < chokeLocation.y) { tile.y -= 1; }
+		}
+		//BWAPI::TilePosition viableTile = BuildingPlacer::Instance().getBuildLocationNear(b, 20, false);
+		return tile;
+
+	}
+
+	if (b.type == BWAPI::UnitTypes::Terran_Missile_Turret) {
+		// Determines closest chokepoint to the Command Center.
+		BWTA::BaseLocation * selfBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
+		BWAPI::Position baseLocation = selfBaseLocation->getPosition();
+		BWTA::Chokepoint * baseChokepoint = BWTA::getNearestChokepoint(baseLocation);
+		BWAPI::Position chokeLocation = baseChokepoint->getCenter();
+		BWAPI::TilePosition tile = BWAPI::TilePosition(chokeLocation);
+
+		while (!BuildingPlacer::Instance().canBuildHere(tile, b)) {
+			if (baseLocation.x > chokeLocation.x) { tile.x += 1; }
+			if (baseLocation.x < chokeLocation.x) { tile.x -= 1; }
+			if (baseLocation.y > chokeLocation.y) { tile.y += 1; }
+			if (baseLocation.y < chokeLocation.y) { tile.y -= 1; }
+		}
+		//BWAPI::TilePosition viableTile = BuildingPlacer::Instance().getBuildLocationNear(b, 20, false);
+		return tile;
+	}
     // set the building padding specifically
     int distance = b.type == BWAPI::UnitTypes::Protoss_Photon_Cannon ? 0 : Config::Macro::BuildingSpacing;
     if (b.type == BWAPI::UnitTypes::Protoss_Pylon && (numPylons < 3))
-    {
+    { 
         distance = Config::Macro::PylonSpacing;
     }
 
