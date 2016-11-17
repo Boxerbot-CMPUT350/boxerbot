@@ -166,13 +166,16 @@ void TransportManager::loadTransport()
 		//Grab every unit that the player owns and load it in the dropship
 		for (auto & unit : BWAPI::Broodwar->self()->getUnits())
 		{
-			if (!unit->getType().isWorker() && !unit->getType().isMechanical() && !unit->getType().isBuilding() && (unit->getDistance(_transportShip->getPosition()) < 300))
+			if (!unit->getType().isWorker() &&
+				!unit->getType().isMechanical() &&
+				!unit->getType().isBuilding() &&
+				(unit->getDistance(_transportShip->getPosition()) < 300))
 			{
 				if (_transportShip->canLoad(unit)) {
 					BWAPI::Broodwar->printf("There exist a unit to load");
 					//BWAPI::Broodwar->printf("Loading %s", unit->getType().getName());
-					//_transportShip->rightClick(unit);
-					_transportShip->load(unit, true);
+					_transportShip->rightClick(unit);
+					//_transportShip->load(unit, true);
 				}
 			}
 		}
@@ -226,6 +229,7 @@ void TransportManager::moveTroops()
 	{
 		//unload troops 
 		//and return? 
+	
 
 		// get the unit's current command
 		BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
