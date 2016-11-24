@@ -25,7 +25,7 @@ class TransportManager : public MicroManager
 	void							moveTroops();
 
 	//New functions
-	void							loadTransport();
+	//void							loadTransport();
 
 	BWAPI::Position                 getFleePosition(int clockwise=1);
 	void                            followPerimeter(int clockwise=1);

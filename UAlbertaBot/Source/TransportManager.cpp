@@ -128,13 +128,13 @@ void TransportManager::update()
 	{
 		calculateMapEdgeVertices();
 	}
-	loadTransport();
+//	loadTransport();
 	moveTroops();
 	moveTransport();
 	
 	drawTransportInformation();
 }
-
+/*
 void TransportManager::loadTransport()
 {
 	//Check to see if transport exist
@@ -176,6 +176,7 @@ void TransportManager::loadTransport()
 					//BWAPI::Broodwar->printf("Loading %s", unit->getType().getName());
 					_transportShip->rightClick(unit);
 					//_transportShip->load(unit, true);
+					//_transportShip->load
 				}
 			}
 		}
@@ -186,10 +187,10 @@ void TransportManager::loadTransport()
 
 
 }
-
+*/
 void TransportManager::moveTransport()
 {
-	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0))
+	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0) || _isFull)
 	{
 		return;
 	}
@@ -222,9 +223,13 @@ void TransportManager::moveTroops()
 	//unload zealots if close enough or dying
 	int transportHP = _transportShip->getHitPoints() + _transportShip->getShields();
 	
+	if (_transportShip->isUnderAttack()) {
+		_transportShip->unloadAll(false);
+	}
+
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 
-	if (enemyBaseLocation && (_transportShip->getDistance(enemyBaseLocation->getPosition()) < 300 || transportHP < 100)
+	if ((_transportShip->getDistance(enemyBaseLocation->getPosition()) < 300 || transportHP < 100)
 		&& _transportShip->canUnloadAtPosition(_transportShip->getPosition()))
 	{
 		//unload troops 
@@ -241,7 +246,10 @@ void TransportManager::moveTroops()
 		}
 
 		//else unload
-		_transportShip->unloadAll(_transportShip->getPosition());
+		assert(_transportShip->canIssueCommand(BWAPI::UnitCommand::unloadAll(_transportShip)));
+		//_transportShip->issueCommand(BWAPI::UnitCommand::unloadAll(_transportShip, true));
+		_transportShip->unloadAll(true);
+		//_transportShip->unloadAll(_transportShip->getPosition(), true);
 		_isFull = false;
 	}
 	

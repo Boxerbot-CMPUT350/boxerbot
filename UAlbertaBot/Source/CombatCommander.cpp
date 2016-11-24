@@ -122,17 +122,21 @@ void CombatCommander::updateDropSquads()
     }
 
     Squad & dropSquad = _squadData.getSquad("Drop");
+	Squad & dropAttackSquad = _squadData.getSquad("MainAttack");
 
     // figure out how many units the drop squad needs
     bool dropSquadHasTransport = false;
     int transportSpotsRemaining = 8;
     auto & dropUnits = dropSquad.getUnits();
+	BWAPI::Unit transportShip;
 
     for (auto & unit : dropUnits)
     {
         if (unit->isFlying() && unit->getType().spaceProvided() > 0)
         {
             dropSquadHasTransport = true;
+			transportShip = unit;
+
         }
         else
         {
@@ -150,7 +154,6 @@ void CombatCommander::updateDropSquads()
             if (!dropSquadHasTransport && (unit->getType().spaceProvided() > 0 && unit->isFlying()))
             {
                 _squadData.assignUnitToSquad(unit, dropSquad);
-                dropSquadHasTransport = true;
                 continue;
             }
 
@@ -158,11 +161,12 @@ void CombatCommander::updateDropSquads()
             {
                 continue;
             }
-
+			
             // get every unit of a lower priority and put it into the attack squad
             if (!unit->getType().isWorker() && _squadData.canAssignUnitToSquad(unit, dropSquad))
             {
                 _squadData.assignUnitToSquad(unit, dropSquad);
+				
                 transportSpotsRemaining -= unit->getType().spaceRequired();
             }
         }
@@ -170,6 +174,16 @@ void CombatCommander::updateDropSquads()
     // otherwise the drop squad is full, so execute the order
     else
     {
+		BWTA::BaseLocation * myLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
+		for (auto & unit : dropUnits)
+		{
+			//_squadData.assignUnitToSquad(unit, dropAttackSquad);
+			if (unit != transportShip && unit->getDistance(myLocation->getPosition()) < 300)
+			{
+				unit->rightClick(transportShip);
+				//_squadData.assignUnitToSquad(unit, dropAttackSquad);
+			}
+		}
         SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 800, "Attack Enemy Base");
         dropSquad.setSquadOrder(dropOrder);
     }
