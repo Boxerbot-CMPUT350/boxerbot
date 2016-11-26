@@ -5,6 +5,7 @@
 #include "BuildingPlacer.h"
 #include "InformationManager.h"
 #include "MapTools.h"
+#include <BWAPI/Unitset.h>
 
 namespace UAlbertaBot
 {
@@ -47,6 +48,8 @@ public:
     int                 getReservedGas();
 
     bool                isBeingBuilt(BWAPI::UnitType type);
+
+	BWAPI::TilePosition getBuildLocationNearBunker(const Building & b, BWAPI::Position chokeLocation);
 
     std::vector<BWAPI::UnitType> buildingsQueued();
 };

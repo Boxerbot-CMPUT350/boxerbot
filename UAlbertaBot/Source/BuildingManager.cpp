@@ -427,42 +427,42 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
         return tile;
     }
 
+	// Determines the closest chokepoint to the Command Center
+	//BWTA::BaseLocation * selfBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self())->getPosition();
+	BWAPI::Position baseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self())->getPosition();
+	//BWTA::Chokepoint * baseChokepoint = BWTA::getNearestChokepoint(baseLocation)->getCenter();
+	BWAPI::Position chokeLocation = BWTA::getNearestChokepoint(baseLocation)->getCenter();
+	//BWAPI::TilePosition tile = BWAPI::TilePosition(chokeLocation);
+
 	if (b.type == BWAPI::UnitTypes::Terran_Bunker) {
-		// Determines closest chokepoint to the Command Center.
-		BWTA::BaseLocation * selfBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
-		BWAPI::Position baseLocation = selfBaseLocation->getPosition();
-		BWTA::Chokepoint * baseChokepoint = BWTA::getNearestChokepoint(baseLocation);
-		BWAPI::Position chokeLocation = baseChokepoint->getCenter();
-		BWAPI::TilePosition tile = BWAPI::TilePosition(chokeLocation);
+		
+		// If the player has no bunkers, place bunker close to the chokepoint
+		if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Terran_Bunker) == 0) {
 
-		while (!BuildingPlacer::Instance().canBuildHere(tile, b)) {
-			if (baseLocation.x > chokeLocation.x) { tile.x += 1; }
-			if (baseLocation.x < chokeLocation.x) { tile.x -= 1; }
-			if (baseLocation.y > chokeLocation.y) { tile.y += 1; }
-			if (baseLocation.y < chokeLocation.y) { tile.y -= 1; }
+			BWAPI::TilePosition tile = BWAPI::TilePosition(chokeLocation);
+
+			// Find distance between the main base and the chokepoint
+			int dist_x = (int)round((baseLocation.x - chokeLocation.x) / 300.0);
+			int dist_y = (int)round((baseLocation.y - chokeLocation.y) / 300.0);
+
+			// Find the closest tile to the chokepoint that the bunker can be placed
+			while (!BuildingPlacer::Instance().canBuildHere(tile, b)) {
+				if (abs(baseLocation.x - tile.x) > abs(dist_x)){ tile.x += dist_x; }
+				if (abs(baseLocation.y - tile.y) > abs(dist_y)){ tile.y += dist_y; }
+			}
+			return tile;
 		}
-		//BWAPI::TilePosition viableTile = BuildingPlacer::Instance().getBuildLocationNear(b, 20, false);
-		return tile;
-
+		else {
+			// If the player has a bunker, place the bunker close to the chokepoint
+			return getBuildLocationNearBunker(b, chokeLocation);
+		}
 	}
 
+	// If the building is a missle turret, place it near the first bunker
 	if (b.type == BWAPI::UnitTypes::Terran_Missile_Turret) {
-		// Determines closest chokepoint to the Command Center.
-		BWTA::BaseLocation * selfBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
-		BWAPI::Position baseLocation = selfBaseLocation->getPosition();
-		BWTA::Chokepoint * baseChokepoint = BWTA::getNearestChokepoint(baseLocation);
-		BWAPI::Position chokeLocation = baseChokepoint->getCenter();
-		BWAPI::TilePosition tile = BWAPI::TilePosition(chokeLocation);
-
-		while (!BuildingPlacer::Instance().canBuildHere(tile, b)) {
-			if (baseLocation.x > chokeLocation.x) { tile.x += 1; }
-			if (baseLocation.x < chokeLocation.x) { tile.x -= 1; }
-			if (baseLocation.y > chokeLocation.y) { tile.y += 1; }
-			if (baseLocation.y < chokeLocation.y) { tile.y -= 1; }
-		}
-		//BWAPI::TilePosition viableTile = BuildingPlacer::Instance().getBuildLocationNear(b, 20, false);
-		return tile;
+		return getBuildLocationNearBunker(b, chokeLocation);
 	}
+
     // set the building padding specifically
     int distance = b.type == BWAPI::UnitTypes::Protoss_Photon_Cannon ? 0 : Config::Macro::BuildingSpacing;
     if (b.type == BWAPI::UnitTypes::Protoss_Pylon && (numPylons < 3))
@@ -485,4 +485,46 @@ void BuildingManager::removeBuildings(const std::vector<Building> & toRemove)
             _buildings.erase(it);
         }
     }
+}
+
+// Finds a build location near an existing bunker
+BWAPI::TilePosition BuildingManager::getBuildLocationNearBunker(const Building & b, BWAPI::Position chokeLocation)
+{
+	int dist = b.type == BWAPI::UnitTypes::Protoss_Photon_Cannon ? 0 : Config::Macro::BuildingSpacing;
+
+	// Iterate through the player's units until the bunker is found
+	for (auto & unit : BWAPI::Broodwar->self()->getUnits())
+	{
+		if (unit->getType() == BWAPI::UnitTypes::Terran_Bunker) {
+
+			// Get the position of the bunker and find the tiles around it
+			std::map<BWAPI::Position, DistanceMap> allMaps;
+			BWAPI::Position bunkerLocation = unit->getPosition();
+			if (allMaps.find(bunkerLocation) == allMaps.end())
+			{
+				// add the map and compute it
+				allMaps.insert(std::pair<BWAPI::Position, DistanceMap>(bunkerLocation, DistanceMap()));
+				MapTools::Instance().search(allMaps[bunkerLocation], bunkerLocation.y / 32, bunkerLocation.x / 32);
+			}
+			const std::vector<BWAPI::TilePosition> closestToBunker = allMaps[bunkerLocation].getSortedTiles();
+
+			// Find a tile that can be built on and is relatively close to the bunker
+			for (unsigned int i = 0; i < closestToBunker.size(); ++i)
+			{
+				if (BuildingPlacer::Instance().canBuildHereWithSpace(closestToBunker[i], b, dist, false))
+				{
+					int dist_x = abs(bunkerLocation.x - closestToBunker[i].x);
+					int dist_y = abs(bunkerLocation.y - closestToBunker[i].y);
+					double sq_dist = (sqrt(pow(dist_x, 2) + pow(dist_y, 2))) / 32;
+					if (sq_dist < 150)
+					{
+						return closestToBunker[i];
+					}
+				}
+			}
+		}
+	}
+
+	// If there is no tile near the bunker, return a buildable location near the base
+	return BuildingPlacer::Instance().getBuildLocationNear(b, dist, false);
 }
