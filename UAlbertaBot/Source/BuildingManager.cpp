@@ -511,7 +511,7 @@ BWAPI::TilePosition BuildingManager::getBuildLocationNearBunker(const Building &
 			// Find a tile that can be built on and is relatively close to the bunker
 			for (unsigned int i = 0; i < closestToBunker.size(); ++i)
 			{
-				if (BuildingPlacer::Instance().canBuildHereWithSpace(closestToBunker[i], b, dist, false))
+				if (BuildingPlacer::Instance().canBuildHere(closestToBunker[i], b))
 				{
 					int dist_x = abs(bunkerLocation.x - closestToBunker[i].x);
 					int dist_y = abs(bunkerLocation.y - closestToBunker[i].y);
