@@ -512,19 +512,21 @@ BWAPI::TilePosition BuildingManager::getBuildLocationNearBunker(const Building &
 			for (unsigned int i = 0; i < closestToBunker.size(); ++i)
 			{
 				if (BuildingPlacer::Instance().canBuildHere(closestToBunker[i], b))
-				{
-					int dist_x = abs(bunkerLocation.x - closestToBunker[i].x);
-					int dist_y = abs(bunkerLocation.y - closestToBunker[i].y);
-					double sq_dist = (sqrt(pow(dist_x, 2) + pow(dist_y, 2))) / 32;
-					if (sq_dist < 150)
-					{
-						return closestToBunker[i];
-					}
+				{	
+					return closestToBunker[i];
+
+					//int dist_x = abs(chokeLocation.x - closestToBunker[i].x);
+					//int dist_y = abs(chokeLocation.y - closestToBunker[i].y);
+					//double sq_dist = (sqrt(dist_x*dist_x + dist_y*dist_y))/32;
+					//if (sq_dist < dist*84)
+					//{
+					//	return closestToBunker[i];
+					//}
 				}
 			}
 		}
 	}
-
+	BWAPI::Broodwar->printf("No location found");
 	// If there is no tile near the bunker, return a buildable location near the base
 	return BuildingPlacer::Instance().getBuildLocationNear(b, dist, false);
 }

@@ -8,6 +8,7 @@ const size_t AttackPriority = 1;
 const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
 const size_t DropPriority = 4;
+const size_t BunkerPriority = 4;
 
 CombatCommander::CombatCommander() 
     : _initialized(false)
@@ -40,8 +41,11 @@ void CombatCommander::initializeSquads()
 	{
 		SquadOrder marineDrop(SquadOrderTypes::Drop, ourBasePosition, 900, "Wait for transport");
 		_squadData.addSquad("Drop", Squad("Drop", marineDrop, DropPriority));
-	}
 
+		// also add a bunker squad
+		SquadOrder bunkerDefense(SquadOrderTypes::Bunker, ourBasePosition, 900, "Load bunker defense");
+		_squadData.addSquad("BunkerDefense", Squad("BunkerDefense", bunkerDefense, BunkerPriority));
+	}
 
     _initialized = true;
 }
@@ -69,6 +73,7 @@ void CombatCommander::update(const BWAPI::Unitset & combatUnits)
 	if (isSquadUpdateFrame())
 	{
         updateIdleSquad();
+		loadBunkers();
         updateDropSquads();
         updateScoutDefenseSquad();
 		updateDefenseSquads();
@@ -634,4 +639,38 @@ bool CombatCommander::beingBuildingRushed()
     }
 
     return false;
+}
+
+// Loads bunkers if they aren't full yet
+void CombatCommander::loadBunkers() {
+
+	// Only implemented in strategy Terran Drop
+	if (Config::Strategy::StrategyName != "Terran_Drop")
+	{
+		return;
+	}
+	
+	Squad & bunkerDefenseSquad = _squadData.getSquad("BunkerDefense");
+
+	// Find completed bunkers
+	for (auto & unit : BWAPI::Broodwar->self()->getUnits())
+	{
+		if (unit->getType() == BWAPI::UnitTypes::Terran_Bunker && unit->isCompleted()) {
+			// Add unit to a bunker and the bunker squad if there is space remaining
+			for (auto & combatant : _combatUnits)
+			{
+				if (unit->getSpaceRemaining() > 0) {
+					// get every unit of a lower priority and put it into the bunker squad
+					if (combatant->getType() == BWAPI::UnitTypes::Terran_Marine && _squadData.canAssignUnitToSquad(combatant, bunkerDefenseSquad))
+					{
+						_squadData.assignUnitToSquad(combatant, bunkerDefenseSquad);
+						Micro::SmartRightClick(combatant, unit);
+					}
+				} else {
+					// Breaks out of the loop if the bunker is full
+					break;
+				}
+			}
+		}
+	}
 }
