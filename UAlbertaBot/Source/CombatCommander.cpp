@@ -77,12 +77,18 @@ void CombatCommander::update(const BWAPI::Unitset & combatUnits)
         updateScoutDefenseSquad();
 		updateDefenseSquads();
 		updateAttackSquads();
-		
+		updateDropAttackSquad();
 	}
 
 	_squadData.update();
 }
 
+void CombatCommander::updateDropAttackSquad()
+{
+	Squad & dropAttackSquad = _squadData.getSquad("DAttack");
+	SquadOrder DropAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
+	dropAttackSquad.setSquadOrder(DropAttackOrder);
+}
 
 void CombatCommander::updateIdleSquad()
 {
@@ -161,6 +167,8 @@ void CombatCommander::updateDropSquads()
 		
 		if (unit != transportShip && unit->getDistance(enemyBaseLocation->getPosition()) < 500)
 		{
+			//dropSquad.removeUnit(unit);
+			//_squadData.assignUnitToSquad(unit, dropAttackSquad);
 			unit->patrol(enemyBaseLocation->getPosition());
 			
 		}

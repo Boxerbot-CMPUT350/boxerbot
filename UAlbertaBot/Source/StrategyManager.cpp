@@ -270,7 +270,14 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		}
 		else 
 		{
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 5));
+			if(numMarines < 20)
+			{
+				goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
+			}
+			else
+			{
+				goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
+			}
 		}
 		if (numDropship < 1) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Dropship, numDropship + 1));
@@ -282,6 +289,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 				goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Academy, 1));
 			}
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + 1));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
 		}
 
 		if (InformationManager::Instance().enemyHasCloakedUnits())

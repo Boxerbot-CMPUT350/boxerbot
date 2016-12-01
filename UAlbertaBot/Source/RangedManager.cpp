@@ -129,6 +129,14 @@ int RangedManager::getAttackPriority(BWAPI::Unit rangedUnit, BWAPI::Unit target)
 	BWAPI::UnitType rangedType = rangedUnit->getType();
 	BWAPI::UnitType targetType = target->getType();
 
+
+	if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Wraith
+		&& target->getType() == BWAPI::UnitTypes::Terran_Missile_Turret
+		&& (BWAPI::Broodwar->self()->deadUnitCount(BWAPI::UnitTypes::Terran_Wraith) == 0))
+	{
+		return 13;
+	}
+
     
     if (rangedUnit->getType() == BWAPI::UnitTypes::Zerg_Scourge)
     {
@@ -244,6 +252,8 @@ void RangedManager::assignTargetsNew(const BWAPI::Unitset & targets)
 
     BWAPI::Unitset rangedUnitsToAssign(rangedUnits);
     std::map<BWAPI::Unit, int> attackersAssigned;
+
+
 
     for (auto & unit : rangedUnitTargets)
     {
