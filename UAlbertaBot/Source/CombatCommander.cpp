@@ -7,10 +7,12 @@ const size_t IdlePriority = 0;
 const size_t AttackPriority = 1;
 const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
-const size_t DropPriority = 4;
+const size_t DropAttackPriority = 4;
+const size_t DropPriority = 5;
 
 CombatCommander::CombatCommander() 
     : _initialized(false)
+	, _unload(false)
 {
 
 }
@@ -40,6 +42,8 @@ void CombatCommander::initializeSquads()
 	{
 		SquadOrder marineDrop(SquadOrderTypes::Drop, ourBasePosition, 900, "Wait for transport");
 		_squadData.addSquad("Drop", Squad("Drop", marineDrop, DropPriority));
+		SquadOrder DAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
+		_squadData.addSquad("DAttack", Squad("DAttack", DAttackOrder, DropAttackPriority));
 	}
 
 
@@ -73,10 +77,12 @@ void CombatCommander::update(const BWAPI::Unitset & combatUnits)
         updateScoutDefenseSquad();
 		updateDefenseSquads();
 		updateAttackSquads();
+		
 	}
 
 	_squadData.update();
 }
+
 
 void CombatCommander::updateIdleSquad()
 {
@@ -94,7 +100,7 @@ void CombatCommander::updateIdleSquad()
 void CombatCommander::updateAttackSquads()
 {
     Squad & mainAttackSquad = _squadData.getSquad("MainAttack");
-	
+	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy()); 
     for (auto & unit : _combatUnits)
     {
         if (unit->getType() == BWAPI::UnitTypes::Zerg_Scourge && UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hydralisk) < 30)
@@ -107,6 +113,14 @@ void CombatCommander::updateAttackSquads()
         {
             _squadData.assignUnitToSquad(unit, mainAttackSquad);
         }
+
+		if (unit->getType() == BWAPI::UnitTypes::Terran_Wraith)
+		{
+			if (unit->canCloak() && (unit->getDistance(enemyBaseLocation->getPosition()) < 500 || unit->isUnderAttack())) {
+				unit->cloak();
+			}
+		}
+
     }
 
     SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
@@ -122,13 +136,15 @@ void CombatCommander::updateDropSquads()
     }
 
     Squad & dropSquad = _squadData.getSquad("Drop");
-	Squad & dropAttackSquad = _squadData.getSquad("MainAttack");
+	Squad & dropAttackSquad = _squadData.getSquad("DAttack");
 
     // figure out how many units the drop squad needs
     bool dropSquadHasTransport = false;
     int transportSpotsRemaining = 8;
     auto & dropUnits = dropSquad.getUnits();
 	BWAPI::Unit transportShip;
+	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy()); 
+	BWTA::BaseLocation * myLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
 
     for (auto & unit : dropUnits)
     {
@@ -142,8 +158,19 @@ void CombatCommander::updateDropSquads()
         {
             transportSpotsRemaining -= unit->getType().spaceRequired();
         }
+		
+		if (unit != transportShip && unit->getDistance(enemyBaseLocation->getPosition()) < 500)
+		{
+			unit->patrol(enemyBaseLocation->getPosition());
+			
+		}
+		if (unit == transportShip && unit->getLoadedUnits().size() == 0 && unit->getDistance(enemyBaseLocation->getPosition()) < 500) {
+			unit->rightClick(myLocation->getPosition());
+			transportSpotsRemaining = 8;
+		}
     }
-
+	
+	
     // if there are still units to be added to the drop squad, do it
     if (transportSpotsRemaining > 0 || !dropSquadHasTransport)
     {
@@ -174,19 +201,22 @@ void CombatCommander::updateDropSquads()
     // otherwise the drop squad is full, so execute the order
     else
     {
-		BWTA::BaseLocation * myLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
+		
 		for (auto & unit : dropUnits)
 		{
 			//_squadData.assignUnitToSquad(unit, dropAttackSquad);
-			if (unit != transportShip && unit->getDistance(myLocation->getPosition()) < 300)
+			if (unit != transportShip && unit->getDistance(enemyBaseLocation->getPosition()) > 500)
 			{
 				unit->rightClick(transportShip);
 				//_squadData.assignUnitToSquad(unit, dropAttackSquad);
 			}
 		}
+
         SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 800, "Attack Enemy Base");
         dropSquad.setSquadOrder(dropOrder);
     }
+
+
 }
 
 void CombatCommander::updateScoutDefenseSquad() 

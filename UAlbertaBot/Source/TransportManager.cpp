@@ -5,11 +5,12 @@ using namespace UAlbertaBot;
 TransportManager::TransportManager() :
 	_transportShip(NULL)
 	, _currentRegionVertexIndex(-1)
-	, _minCorner(-1,-1)
-	, _maxCorner(-1,-1)
-	, _to(-1,-1)
-	, _from(-1,-1)
+	, _minCorner(-1, -1)
+	, _maxCorner(-1, -1)
+	, _to(-1, -1)
+	, _from(-1, -1)
 	, _isFull(false)
+	, _finishUnload(false)
 {
 }
 
@@ -128,69 +129,17 @@ void TransportManager::update()
 	{
 		calculateMapEdgeVertices();
 	}
-//	loadTransport();
+
+
 	moveTroops();
 	moveTransport();
 	
 	drawTransportInformation();
 }
-/*
-void TransportManager::loadTransport()
-{
-	//Check to see if transport exist
-	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0))
-	{
-		return;
-	}
-	
-	// If I didn't finish loading the troops, wait
-	BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
-	if ((currentCommand.getType() == BWAPI::UnitCommandTypes::Load)
-		&& _transportShip->getLoadedUnits().size() <= 8)
-	{
-		return;
-	}
 
-	BWTA::BaseLocation * myBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
-
-	if (myBaseLocation && (_transportShip->getDistance(myBaseLocation->getPosition()) < 300)) {
-		BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
-
-		// if we've already told this unit to load, wait
-		if (currentCommand.getType() == BWAPI::UnitCommandTypes::Load)
-		{
-			return;
-		}
-
-		BWAPI::Broodwar->printf("I got here");
-		//Grab every unit that the player owns and load it in the dropship
-		for (auto & unit : BWAPI::Broodwar->self()->getUnits())
-		{
-			if (!unit->getType().isWorker() &&
-				!unit->getType().isMechanical() &&
-				!unit->getType().isBuilding() &&
-				(unit->getDistance(_transportShip->getPosition()) < 300))
-			{
-				if (_transportShip->canLoad(unit)) {
-					BWAPI::Broodwar->printf("There exist a unit to load");
-					//BWAPI::Broodwar->printf("Loading %s", unit->getType().getName());
-					_transportShip->rightClick(unit);
-					//_transportShip->load(unit, true);
-					//_transportShip->load
-				}
-			}
-		}
-		if (_transportShip->getLoadedUnits().size() > 7) {
-			_isFull = true;
-		}
-	}
-
-
-}
-*/
 void TransportManager::moveTransport()
 {
-	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0) || _isFull)
+	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0) || _finishUnload)
 	{
 		return;
 	}
@@ -212,24 +161,31 @@ void TransportManager::moveTransport()
 	{
 		followPerimeter();
 	}
+
+
+	if (_transportShip->isUnderAttack()) {
+		_transportShip->unloadAll(true);
+	}
+
 }
 
 void TransportManager::moveTroops()
 {
-	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0))
+	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0) || (_transportShip->getLoadedUnits().size() < 8))
 	{
 		return;
 	}
+
 	//unload zealots if close enough or dying
 	int transportHP = _transportShip->getHitPoints() + _transportShip->getShields();
-	
+
 	if (_transportShip->isUnderAttack()) {
-		_transportShip->unloadAll(false);
+		_transportShip->unloadAll(true);
 	}
 
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 
-	if ((_transportShip->getDistance(enemyBaseLocation->getPosition()) < 300 || transportHP < 100)
+	if ((_transportShip->getDistance(enemyBaseLocation->getPosition()) < 450 || transportHP < 100)
 		&& _transportShip->canUnloadAtPosition(_transportShip->getPosition()))
 	{
 		//unload troops 
@@ -245,12 +201,10 @@ void TransportManager::moveTroops()
 			return;
 		}
 
-		//else unload
-		assert(_transportShip->canIssueCommand(BWAPI::UnitCommand::unloadAll(_transportShip)));
-		//_transportShip->issueCommand(BWAPI::UnitCommand::unloadAll(_transportShip, true));
-		_transportShip->unloadAll(true);
-		//_transportShip->unloadAll(_transportShip->getPosition(), true);
+		_transportShip->unloadAll(_transportShip->getPosition(), true);
+		
 		_isFull = false;
+		_finishUnload = true;
 	}
 	
 }

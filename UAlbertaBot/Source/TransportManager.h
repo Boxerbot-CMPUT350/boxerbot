@@ -18,7 +18,8 @@ class TransportManager : public MicroManager
 	BWAPI::Position					_to;
 	BWAPI::Position					_from;
 	bool							_isFull;
-	
+	bool							_finishUnload;
+
 	void							calculateMapEdgeVertices();
 	void							drawTransportInformation(int x, int y);
 	void							moveTransport();
