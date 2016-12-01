@@ -77,18 +77,13 @@ void CombatCommander::update(const BWAPI::Unitset & combatUnits)
         updateScoutDefenseSquad();
 		updateDefenseSquads();
 		updateAttackSquads();
-		updateDropAttackSquad();
+
 	}
 
 	_squadData.update();
 }
 
-void CombatCommander::updateDropAttackSquad()
-{
-	Squad & dropAttackSquad = _squadData.getSquad("DAttack");
-	SquadOrder DropAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
-	dropAttackSquad.setSquadOrder(DropAttackOrder);
-}
+
 
 void CombatCommander::updateIdleSquad()
 {

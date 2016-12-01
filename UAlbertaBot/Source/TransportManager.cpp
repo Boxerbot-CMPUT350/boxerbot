@@ -139,9 +139,22 @@ void TransportManager::update()
 
 void TransportManager::moveTransport()
 {
-	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0) || _finishUnload)
+
+	BWTA::BaseLocation * mylocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
+
+	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0))
 	{
 		return;
+	}
+
+	if (_transportShip->getLoadedUnits().size() == 8 && (_transportShip->getDistance(mylocation->getPosition()) < 850))
+	{
+			_finishUnload = false;
+	}
+	
+	if (_finishUnload)
+	{
+		return; 
 	}
 
 	// If I didn't finish unloading the troops, wait
@@ -152,7 +165,12 @@ void TransportManager::moveTransport()
 	{
 		return;
 	}
-	
+
+	if (_transportShip->isUnderAttack()) {
+		_transportShip->unloadAll(true);
+	}
+
+
 	if (_to.isValid() && _from.isValid())
 	{
 		followPerimeter(_to, _from);
@@ -160,11 +178,6 @@ void TransportManager::moveTransport()
 	else
 	{
 		followPerimeter();
-	}
-
-
-	if (_transportShip->isUnderAttack()) {
-		_transportShip->unloadAll(true);
 	}
 
 }
