@@ -147,7 +147,7 @@ void TransportManager::moveTransport()
 		return;
 	}
 
-	if (_transportShip->getLoadedUnits().size() == 8 && (_transportShip->getDistance(mylocation->getPosition()) < 850))
+	if (!(_transportShip->getLoadedUnits().size() < 8) && (_transportShip->getDistance(mylocation->getPosition()) < 850))
 	{
 			_finishUnload = false;
 	}
@@ -204,7 +204,7 @@ void TransportManager::moveTroops()
 		//unload troops 
 		//and return? 
 	
-
+		
 		// get the unit's current command
 		BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
 
