@@ -8,7 +8,7 @@ const size_t AttackPriority = 1;
 const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
 const size_t DropPriority = 4;
-const size_t BunkerPriority = 4;
+const size_t BunkerPriority = 7;
 
 CombatCommander::CombatCommander() 
     : _initialized(false)
