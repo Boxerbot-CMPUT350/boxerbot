@@ -7,11 +7,13 @@ const size_t IdlePriority = 0;
 const size_t AttackPriority = 1;
 const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
-const size_t DropPriority = 4;
-const size_t BunkerPriority = 7;
+const size_t DropAttackPriority = 4;
+const size_t DropPriority = 5;
+const size_t BunkerPriority = 6;
 
 CombatCommander::CombatCommander() 
     : _initialized(false)
+	, _unload(false)
 {
 
 }
@@ -41,6 +43,9 @@ void CombatCommander::initializeSquads()
 	{
 		SquadOrder marineDrop(SquadOrderTypes::Drop, ourBasePosition, 900, "Wait for transport");
 		_squadData.addSquad("Drop", Squad("Drop", marineDrop, DropPriority));
+
+		SquadOrder DAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
+		_squadData.addSquad("DAttack", Squad("DAttack", DAttackOrder, DropAttackPriority));
 
 		// also add a bunker squad
 		SquadOrder bunkerDefense(SquadOrderTypes::Bunker, ourBasePosition, 900, "Load bunker defense");
@@ -73,15 +78,18 @@ void CombatCommander::update(const BWAPI::Unitset & combatUnits)
 	if (isSquadUpdateFrame())
 	{
         updateIdleSquad();
-		loadBunkers();
+		updateBunkers();
         updateDropSquads();
         updateScoutDefenseSquad();
 		updateDefenseSquads();
 		updateAttackSquads();
+
 	}
 
 	_squadData.update();
 }
+
+
 
 void CombatCommander::updateIdleSquad()
 {
@@ -99,7 +107,7 @@ void CombatCommander::updateIdleSquad()
 void CombatCommander::updateAttackSquads()
 {
     Squad & mainAttackSquad = _squadData.getSquad("MainAttack");
-
+	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy()); 
     for (auto & unit : _combatUnits)
     {
         if (unit->getType() == BWAPI::UnitTypes::Zerg_Scourge && UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hydralisk) < 30)
@@ -112,38 +120,66 @@ void CombatCommander::updateAttackSquads()
         {
             _squadData.assignUnitToSquad(unit, mainAttackSquad);
         }
+
+		if (unit->getType() == BWAPI::UnitTypes::Terran_Wraith)
+		{
+			if (unit->canCloak() && (unit->getDistance(enemyBaseLocation->getPosition()) < 500 || unit->isUnderAttack())) {
+				unit->cloak();
+			}
+		}
+
     }
 
     SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
     mainAttackSquad.setSquadOrder(mainAttackOrder);
+	
 }
 
 void CombatCommander::updateDropSquads()
 {
-    if (Config::Strategy::StrategyName != "Protoss_Drop" || Config::Strategy::StrategyName != "Terran_Drop")
+    if (Config::Strategy::StrategyName != "Terran_Drop")
     {
         return;
     }
 
     Squad & dropSquad = _squadData.getSquad("Drop");
+	Squad & dropAttackSquad = _squadData.getSquad("DAttack");
 
     // figure out how many units the drop squad needs
     bool dropSquadHasTransport = false;
     int transportSpotsRemaining = 8;
     auto & dropUnits = dropSquad.getUnits();
+	BWAPI::Unit transportShip;
+	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy()); 
+	BWTA::BaseLocation * myLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
 
     for (auto & unit : dropUnits)
     {
         if (unit->isFlying() && unit->getType().spaceProvided() > 0)
         {
             dropSquadHasTransport = true;
+			transportShip = unit;
+
         }
         else
         {
             transportSpotsRemaining -= unit->getType().spaceRequired();
         }
+		
+		if (unit != transportShip && unit->getDistance(enemyBaseLocation->getPosition()) < 500)
+		{
+			//dropSquad.removeUnit(unit);
+			//_squadData.assignUnitToSquad(unit, dropAttackSquad);
+			unit->patrol(enemyBaseLocation->getPosition());
+			
+		}
+		if (unit == transportShip && unit->getLoadedUnits().size() == 0 && unit->getDistance(enemyBaseLocation->getPosition()) < 500) {
+			unit->rightClick(myLocation->getPosition());
+			transportSpotsRemaining = 8;
+		}
     }
-
+	
+	
     // if there are still units to be added to the drop squad, do it
     if (transportSpotsRemaining > 0 || !dropSquadHasTransport)
     {
@@ -154,7 +190,6 @@ void CombatCommander::updateDropSquads()
             if (!dropSquadHasTransport && (unit->getType().spaceProvided() > 0 && unit->isFlying()))
             {
                 _squadData.assignUnitToSquad(unit, dropSquad);
-                dropSquadHasTransport = true;
                 continue;
             }
 
@@ -162,11 +197,12 @@ void CombatCommander::updateDropSquads()
             {
                 continue;
             }
-
+			
             // get every unit of a lower priority and put it into the attack squad
             if (!unit->getType().isWorker() && _squadData.canAssignUnitToSquad(unit, dropSquad))
             {
                 _squadData.assignUnitToSquad(unit, dropSquad);
+				
                 transportSpotsRemaining -= unit->getType().spaceRequired();
             }
         }
@@ -174,9 +210,22 @@ void CombatCommander::updateDropSquads()
     // otherwise the drop squad is full, so execute the order
     else
     {
+		
+		for (auto & unit : dropUnits)
+		{
+			//_squadData.assignUnitToSquad(unit, dropAttackSquad);
+			if (unit != transportShip && unit->getDistance(enemyBaseLocation->getPosition()) > 500)
+			{
+				unit->rightClick(transportShip);
+				//_squadData.assignUnitToSquad(unit, dropAttackSquad);
+			}
+		}
+
         SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 800, "Attack Enemy Base");
         dropSquad.setSquadOrder(dropOrder);
     }
+
+
 }
 
 void CombatCommander::updateScoutDefenseSquad() 
@@ -642,7 +691,7 @@ bool CombatCommander::beingBuildingRushed()
 }
 
 // Loads bunkers if they aren't full yet
-void CombatCommander::loadBunkers() {
+void CombatCommander::updateBunkers() {
 
 	// Only implemented in strategy Terran Drop
 	if (Config::Strategy::StrategyName != "Terran_Drop")

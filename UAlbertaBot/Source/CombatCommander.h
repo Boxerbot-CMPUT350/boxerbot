@@ -13,15 +13,18 @@ class CombatCommander
 	SquadData       _squadData;
     BWAPI::Unitset  _combatUnits;
     bool            _initialized;
+	bool			_unload;
 
     void            updateScoutDefenseSquad();
 	void            updateDefenseSquads();
 	void            updateAttackSquads();
     void            updateDropSquads();
 	void            updateIdleSquad();
+
 	bool            isSquadUpdateFrame();
+
 	int             getNumType(BWAPI::Unitset & units, BWAPI::UnitType type);
-	void			loadBunkers();
+	void			updateBunkers();
 
 	BWAPI::Unit     findClosestDefender(const Squad & defenseSquad, BWAPI::Position pos, bool flyingDefender);
     BWAPI::Unit     findClosestWorkerToTarget(BWAPI::Unitset & unitsToAssign, BWAPI::Unit target);

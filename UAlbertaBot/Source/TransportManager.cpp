@@ -5,10 +5,12 @@ using namespace UAlbertaBot;
 TransportManager::TransportManager() :
 	_transportShip(NULL)
 	, _currentRegionVertexIndex(-1)
-	, _minCorner(-1,-1)
-	, _maxCorner(-1,-1)
-	, _to(-1,-1)
-	, _from(-1,-1)
+	, _minCorner(-1, -1)
+	, _maxCorner(-1, -1)
+	, _to(-1, -1)
+	, _from(-1, -1)
+	, _isFull(false)
+	, _finishUnload(false)
 {
 }
 
@@ -128,6 +130,7 @@ void TransportManager::update()
 		calculateMapEdgeVertices();
 	}
 
+
 	moveTroops();
 	moveTransport();
 	
@@ -136,20 +139,38 @@ void TransportManager::update()
 
 void TransportManager::moveTransport()
 {
+
+	BWTA::BaseLocation * mylocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
+
 	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0))
 	{
 		return;
+	}
+
+	if (!(_transportShip->getLoadedUnits().size() < 8) && (_transportShip->getDistance(mylocation->getPosition()) < 850))
+	{
+			_finishUnload = false;
+	}
+	
+	if (_finishUnload)
+	{
+		return; 
 	}
 
 	// If I didn't finish unloading the troops, wait
 	BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
 	if ((currentCommand.getType() == BWAPI::UnitCommandTypes::Unload_All 
 	 || currentCommand.getType() == BWAPI::UnitCommandTypes::Unload_All_Position)
-	 && _transportShip->getLoadedUnits().size() > 0)
+	 && _isFull)
 	{
 		return;
 	}
-	
+
+	if (_transportShip->isUnderAttack()) {
+		_transportShip->unloadAll(true);
+	}
+
+
 	if (_to.isValid() && _from.isValid())
 	{
 		followPerimeter(_to, _from);
@@ -158,25 +179,32 @@ void TransportManager::moveTransport()
 	{
 		followPerimeter();
 	}
+
 }
 
 void TransportManager::moveTroops()
 {
-	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0))
+	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0) || (_transportShip->getLoadedUnits().size() < 8))
 	{
 		return;
 	}
+
 	//unload zealots if close enough or dying
 	int transportHP = _transportShip->getHitPoints() + _transportShip->getShields();
-	
+
+	if (_transportShip->isUnderAttack()) {
+		_transportShip->unloadAll(true);
+	}
+
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 
-	if (enemyBaseLocation && (_transportShip->getDistance(enemyBaseLocation->getPosition()) < 300 || transportHP < 100)
+	if ((_transportShip->getDistance(enemyBaseLocation->getPosition()) < 450 || transportHP < 100)
 		&& _transportShip->canUnloadAtPosition(_transportShip->getPosition()))
 	{
 		//unload troops 
 		//and return? 
-
+	
+		
 		// get the unit's current command
 		BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
 
@@ -186,8 +214,10 @@ void TransportManager::moveTroops()
 			return;
 		}
 
-		//else unload
-		_transportShip->unloadAll(_transportShip->getPosition());
+		_transportShip->unloadAll(_transportShip->getPosition(), true);
+		
+		_isFull = false;
+		_finishUnload = true;
 	}
 	
 }
