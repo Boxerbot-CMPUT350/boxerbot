@@ -270,7 +270,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		}
 		else 
 		{
-			if(numMarines < 20)
+			if(numMarines < 23)
 			{
 				goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
 			}

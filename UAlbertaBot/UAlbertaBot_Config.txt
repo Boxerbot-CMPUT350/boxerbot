@@ -41,7 +41,7 @@
         "LogAssertToErrorFile"      : false,
         
         "DrawGameInfo"              : false,   
-        "DrawUnitHealthBars"        : true,
+        "DrawUnitHealthBars"        : false,
         "DrawProductionInfo"        : true, 
         "DrawBuildOrderSearchInfo"  : false,
         "DrawScoutInfo"             : false,
@@ -55,7 +55,7 @@
         "DrawSquadInfo"             : true,
         "DrawWorkerInfo"            : false,
         "DrawMouseCursorInfo"       : false,
-        "DrawBuildingInfo"          : true,
+        "DrawBuildingInfo"          : false,
         "DrawReservedBuildingTiles" : true,
         "DrawBOSSStateInfo"         : false,
         "PrintModuleTimeout"        : false
@@ -103,7 +103,7 @@
             "Protoss_DragoonRush"   : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Probe", "Cybernetics_Core", "Probe", "Probe", "Gateway", "Singularity_Charge", "Dragoon", "Gateway", "Pylon", "Dragoon", "Dragoon", "Probe", "Gateway", "Pylon", "Probe", "Dragoon", "Dragoon", "Dragoon"]},
             "Protoss_DTRush"        : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Cybernetics_Core", "Probe", "Citadel_of_Adun", "Probe", "Templar_Archives", "Gateway", "Dark_Templar", "Dark_Templar", "Pylon", "Dark_Templar", "Dark_Templar", "Probe", "Pylon", "Probe" ]},
             "Protoss_Drop"          : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Probe", "Cybernetics_Core", "Probe", "Gateway", "Robotics Facility"]},
-            "Terran_Drop"	        : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "SCV", "Barracks", "Refinery", "SCV", "SCV", "Bunker", "Marine", "Marine", "Marine", "Marine", "Engineering Bay", "Missile_Turret", "Factory", "Bunker", "Marine", "Marine", "Marine", "Marine", "Starport"]},
+            "Terran_Drop"	        : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "SCV", "Barracks", "Refinery", "SCV", "SCV", "Bunker", "Marine", "Marine", "Marine", "Marine", "Engineering Bay", "SCV", "Missile_Turret", "Factory", "SCV", "Bunker", "Marine", "Marine", "Marine", "Marine", "Starport"]},
 			"Terran_MarineALLIN"    : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "Supply Depot", "SCV", "Barracks", "SCV", "SCV", "SCV"]},
 			"Terran_MarineRush"     : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "SCV"]},
 			"Terran_MarineRush"     : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "SCV"]},

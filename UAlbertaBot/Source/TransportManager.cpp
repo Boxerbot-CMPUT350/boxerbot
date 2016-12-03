@@ -141,6 +141,7 @@ void TransportManager::moveTransport()
 {
 
 	BWTA::BaseLocation * mylocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
+	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 
 	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0))
 	{
@@ -170,16 +171,18 @@ void TransportManager::moveTransport()
 		_transportShip->unloadAll(true);
 	}
 
-
-	if (_to.isValid() && _from.isValid())
+	// Check that the dropship is full before leaving to the enemy base
+	if (_transportShip->getSpaceRemaining() == 0)
 	{
-		followPerimeter(_to, _from);
+		if (_to.isValid() && _from.isValid())
+		{
+			followPerimeter(_to, _from);
+		}
+		else
+		{
+			followPerimeter();
+		}
 	}
-	else
-	{
-		followPerimeter();
-	}
-
 }
 
 void TransportManager::moveTroops()
