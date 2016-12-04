@@ -46,7 +46,9 @@ void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
                 {
                     if (rangedUnit->getType() == BWAPI::UnitTypes::Zerg_Mutalisk || rangedUnit->getType() == BWAPI::UnitTypes::Terran_Vulture)
                     {
+						
 				        Micro::MutaDanceTarget(rangedUnit, target);
+						
                     }
                     else
                     {

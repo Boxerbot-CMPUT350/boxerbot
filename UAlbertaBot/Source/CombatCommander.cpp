@@ -100,6 +100,10 @@ void CombatCommander::updateDropAttackPriority()
 			continue;
 		}
 
+		if (unit->isUnderAttack() && unit->getSpiderMineCount() > 0) {
+			unit->useTech(BWAPI::TechTypes::Spider_Mines, unit->getPosition());
+		}
+
 		// get every unit of a lower priority and put it into the attack squad
 		if (!unit->getType().isWorker()
 			&& _squadData.canAssignUnitToSquad(unit, DropAttackSquad)
@@ -153,9 +157,17 @@ void CombatCommander::updateAttackSquads()
 			}
 		}
 
+		if (unit->getType() == BWAPI::UnitTypes::Terran_Vulture && unit->canUseTech(BWAPI::TechTypes::Spider_Mines))
+		{	
+		
+			if (unit->isUnderAttack() && unit->getSpiderMineCount() > 0) {
+				unit->useTech(BWAPI::TechTypes::Spider_Mines, unit->getPosition());
+			}
+		}
+
     }
 	const BWAPI::Unitset & units = mainAttackSquad.getUnits();
-	if (units.size() > 20) {
+	if (units.size() > 15) {
 		SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
 		mainAttackSquad.setSquadOrder(mainAttackOrder);
 	}

@@ -20,6 +20,8 @@ class TransportManager : public MicroManager
 	bool							_isFull;
 	bool							_finishUnload;
 
+	bool							isUnitnearby();
+
 	void							calculateMapEdgeVertices();
 	void							drawTransportInformation(int x, int y);
 	void							moveTransport();

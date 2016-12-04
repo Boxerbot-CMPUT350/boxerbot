@@ -50,7 +50,7 @@ void MedicManager::executeMicro(const BWAPI::Unitset & targets)
         if (closestMedic)
         {
             closestMedic->useTech(BWAPI::TechTypes::Healing, target);
-
+			
             availableMedics.erase(closestMedic);
         }
         // otherwise we didn't find a medic which means they're all in use so break
