@@ -131,6 +131,12 @@ int RangedManager::getAttackPriority(BWAPI::Unit rangedUnit, BWAPI::Unit target)
 	BWAPI::UnitType rangedType = rangedUnit->getType();
 	BWAPI::UnitType targetType = target->getType();
 
+	if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Wraith
+		&& (target->getType() == BWAPI::UnitTypes::Zerg_Sunken_Colony)
+		)
+	{
+		return 70;
+	}
 
 	if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Wraith
 		&& (target->getType() == BWAPI::UnitTypes::Terran_Missile_Turret 

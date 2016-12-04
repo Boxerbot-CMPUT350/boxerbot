@@ -287,13 +287,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Starport, 1));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
 		}
-		if (numControlTower != numStarport) {
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Control_Tower, numStarport));
-		}
 
-		if (numMachineShop != numFactory) {
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Machine_Shop, 1));
-		}
 
 		if (numControlTower > 0) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::TechTypes::Cloaking_Field, 1));
@@ -319,6 +313,13 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
 			
 		}
+		if (numControlTower != numStarport) {
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Control_Tower, numStarport));
+		}
+
+		if (numMachineShop != numFactory) {
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Machine_Shop, 1));
+		}
 		if (numDropship < 1) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Dropship, numDropship + 1));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
@@ -337,6 +338,10 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 			{
 				goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Vulture, numVultures+ 1));
 			}
+		}
+		if (InformationManager::Instance().enemyHasCloakedUnits())
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Science_Vessel, 1));
 		}
 
 	}
