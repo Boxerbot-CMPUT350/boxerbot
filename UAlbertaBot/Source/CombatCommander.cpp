@@ -7,7 +7,7 @@ const size_t IdlePriority = 0;
 const size_t AttackPriority = 1;
 const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
-const size_t DropAttackPriority = 4;
+const size_t DropAttackPriority = 7;
 const size_t DropPriority = 5;
 const size_t BunkerPriority = 6;
 
@@ -83,13 +83,38 @@ void CombatCommander::update(const BWAPI::Unitset & combatUnits)
         updateScoutDefenseSquad();
 		updateDefenseSquads();
 		updateAttackSquads();
-
+		updateDropAttackPriority();
 	}
 
 	_squadData.update();
 }
 
+void CombatCommander::updateDropAttackPriority()
+{
+	Squad & DropAttackSquad = _squadData.getSquad("DAttack");
+	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
+	for (auto & unit : _combatUnits)
+	{
+		if (unit->getType() == BWAPI::UnitTypes::Terran_Dropship || unit->isFlying())
+		{
+			continue;
+		}
 
+		// get every unit of a lower priority and put it into the attack squad
+		if (!unit->getType().isWorker()
+			&& _squadData.canAssignUnitToSquad(unit, DropAttackSquad)
+			&& unit->getDistance(enemyBaseLocation->getPosition()) < 1000)
+		{
+			_squadData.assignUnitToSquad(unit, DropAttackSquad);
+		}
+
+	}
+
+	SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 1500, "Attack Enemy Base");
+	DropAttackSquad.setSquadOrder(dropOrder);
+	
+
+}
 
 void CombatCommander::updateIdleSquad()
 {
@@ -114,9 +139,6 @@ void CombatCommander::updateAttackSquads()
         {
             continue;
         }
-
-	
-
 
         // get every unit of a lower priority and put it into the attack squad
         if (!unit->getType().isWorker() && (unit->getType() != BWAPI::UnitTypes::Zerg_Overlord) && _squadData.canAssignUnitToSquad(unit, mainAttackSquad))
@@ -172,13 +194,13 @@ void CombatCommander::updateDropSquads()
 		
 		if (unit != transportShip && unit->getDistance(enemyBaseLocation->getPosition()) < 500)
 		{
-			SquadOrder dropOrder(SquadOrderTypes::Drop, enemyBaseLocation->getPosition(), 800, "Attack Enemy Base");
+			SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 1500, "Attack Enemy Base");
 			dropSquad.setSquadOrder(dropOrder);
 		}
 		if (unit == transportShip && unit->getLoadedUnits().size() == 0 && unit->getDistance(enemyBaseLocation->getPosition()) < 500) {
 			unit->rightClick(myLocation->getPosition());
 			transportSpotsRemaining = 8;
-		}
+		} 
     }
 	
 	
@@ -201,7 +223,7 @@ void CombatCommander::updateDropSquads()
             }
 			
             // get every unit of a lower priority and put it into the attack squad
-            if (!unit->getType().isWorker() && _squadData.canAssignUnitToSquad(unit, dropSquad))
+            if (!unit->getType().isWorker() && _squadData.canAssignUnitToSquad(unit, dropSquad) && unit->getDistance(myLocation->getPosition()) < 1200)
             {
                 _squadData.assignUnitToSquad(unit, dropSquad);
 				

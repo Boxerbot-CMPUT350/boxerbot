@@ -147,10 +147,16 @@ void TransportManager::moveTransport()
 		return;
 	}
 
-	if (!(_transportShip->getLoadedUnits().size() < 8) && (_transportShip->getDistance(mylocation->getPosition()) < 850))
+	if (_transportShip->getLoadedUnits().size() == 8)
+	{
+		_isFull = true;
+	}
+
+	if ((!(_transportShip->getLoadedUnits().size() < 8)|| _isFull) && (_transportShip->getDistance(mylocation->getPosition()) < 850))
 	{
 		_finishUnload = false;
 	}
+
 
 	if (_finishUnload)
 	{
@@ -168,18 +174,20 @@ void TransportManager::moveTransport()
 
 	if (_transportShip->isUnderAttack()) {
 		_transportShip->unloadAll(true);
+		_isFull = false;
 	}
 
 	// Check that the dropship is full before leaving to the enemy base
 	if (_transportShip->getSpaceRemaining() == 0)
 	{
+		_isFull = true;
 		if (_to.isValid() && _from.isValid())
 		{
 			followPerimeter(_to, _from);
 		}
 		else
 		{
-			followPerimeter();
+			followPerimeter(enemyBaseLocation->getPosition(), _transportShip->getPosition());
 		}
 	}
 }
@@ -216,10 +224,12 @@ void TransportManager::moveTroops()
 			return;
 		}
 
-		_transportShip->unloadAll(_transportShip->getPosition(), true);
-
 		_isFull = false;
 		_finishUnload = true;
+
+		_transportShip->unloadAll(_transportShip->getPosition(), true);
+
+		
 	}
 
 }

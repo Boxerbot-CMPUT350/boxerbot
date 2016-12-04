@@ -225,6 +225,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 	int numAcademy      = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Academy);
 	int numTurret		= BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Missile_Turret);
 	int numFactory		= BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Factory);
+	int numBunker		= BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Bunker);
 
 	int numMedics       = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Medic);
 	int numWraith       = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Wraith);
@@ -265,41 +266,44 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
     } 
 	else if (Config::Strategy::StrategyName == "Terran_Drop")
 	{
+		
 		if (isRich()) {
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Terran_Infantry_Armor, 1));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + numBarrack));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Medic, numMedics + 2));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + numStarport));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numVultures + numFactory));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + numBarrack));
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Medic, numMedics + 2));
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + numStarport));
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numVultures + numFactory));
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + numBarrack));
+
 		}
 
-		if (numBarrack < 3) {
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Barracks, numBarrack + 1));
+		if (numBarrack < 3 && numStarport >= 1) {
+			
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
 		}
 		if (numStarport < 1) {
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Starport, 1));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
 		}
 		if (numControlTower != numStarport) {
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Control_Tower, numStarport));
 		}
 		if (numControlTower > 0) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::TechTypes::Cloaking_Field, 1));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Terran_Infantry_Weapons, 1));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
 		}
 
 		if (numAcademy >= 1) 
 		{
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 5));
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Medic, numMedics + 1));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Medic, numMedics + 2));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
 		}
 		else 
 		{
 			
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
 			
 		}
 		if (numDropship < 1) {
@@ -312,21 +316,11 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 			if (numAcademy < 1) {
 				goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Academy, 1));
 			}
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + 1));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
 		}
 
-		if (InformationManager::Instance().enemyHasCloakedUnits())
-		{
-			if (numTurret < 2)
-			{
-				goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Missile_Turret, 1));
-			}
-		}
-
-		goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
-
-		
 	}
 	else 
     {
@@ -338,7 +332,9 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
     if (shouldExpandNow())
     {
         goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Command_Center, numCC + 1));
-        goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_SCV, numWorkers + 10));
+		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
+        goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_SCV, numWorkers + 5));
+		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
     }
 
 	return goal;

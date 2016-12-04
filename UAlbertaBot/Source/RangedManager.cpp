@@ -131,12 +131,21 @@ int RangedManager::getAttackPriority(BWAPI::Unit rangedUnit, BWAPI::Unit target)
 
 
 	if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Wraith
-		&& (target->getType() == BWAPI::UnitTypes::Terran_Missile_Turret || target->getType() == BWAPI::UnitTypes::Protoss_Photon_Cannon)
+		&& (target->getType() == BWAPI::UnitTypes::Terran_Missile_Turret 
+			|| target->getType() == BWAPI::UnitTypes::Protoss_Photon_Cannon
+			|| target->getType() == BWAPI::UnitTypes::Zerg_Spore_Colony)
 		&& (BWAPI::Broodwar->self()->deadUnitCount(BWAPI::UnitTypes::Terran_Wraith) < 2))
 	{
 		return 50;
 	}
 
+	if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Marine 
+		&& rangedUnit->getDistance(target->getPosition()) < 450 
+		&& (target->getType().isWorker() || target->getType().isBuilding()) 
+		&& !rangedUnit->isUnderAttack())
+	{
+		return 55;
+	}
 
     
     if (rangedUnit->getType() == BWAPI::UnitTypes::Zerg_Scourge)
