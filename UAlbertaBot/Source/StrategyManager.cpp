@@ -288,6 +288,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		}
 		if (numControlTower > 0) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::TechTypes::Cloaking_Field, 1));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
 		}
 
 		if (numAcademy >= 1) 
@@ -303,6 +304,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		}
 		if (numDropship < 1) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Dropship, numDropship + 1));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
 		}
 
 		if (numControlTower > 0 && numMarines > 15)

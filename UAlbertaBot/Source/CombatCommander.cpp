@@ -172,7 +172,7 @@ void CombatCommander::updateDropSquads()
 		
 		if (unit != transportShip && unit->getDistance(enemyBaseLocation->getPosition()) < 500)
 		{
-			SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 800, "Attack Enemy Base");
+			SquadOrder dropOrder(SquadOrderTypes::Drop, enemyBaseLocation->getPosition(), 800, "Attack Enemy Base");
 			dropSquad.setSquadOrder(dropOrder);
 		}
 		if (unit == transportShip && unit->getLoadedUnits().size() == 0 && unit->getDistance(enemyBaseLocation->getPosition()) < 500) {
