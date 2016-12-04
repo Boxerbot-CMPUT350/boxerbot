@@ -130,7 +130,6 @@ void TransportManager::update()
 		calculateMapEdgeVertices();
 	}
 
-
 	moveTroops();
 	moveTransport();
 	
@@ -150,19 +149,19 @@ void TransportManager::moveTransport()
 
 	if (!(_transportShip->getLoadedUnits().size() < 8) && (_transportShip->getDistance(mylocation->getPosition()) < 850))
 	{
-			_finishUnload = false;
+		_finishUnload = false;
 	}
-	
+
 	if (_finishUnload)
 	{
-		return; 
+		return;
 	}
 
 	// If I didn't finish unloading the troops, wait
 	BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
-	if ((currentCommand.getType() == BWAPI::UnitCommandTypes::Unload_All 
-	 || currentCommand.getType() == BWAPI::UnitCommandTypes::Unload_All_Position)
-	 && _isFull)
+	if ((currentCommand.getType() == BWAPI::UnitCommandTypes::Unload_All
+		|| currentCommand.getType() == BWAPI::UnitCommandTypes::Unload_All_Position)
+		&& _isFull)
 	{
 		return;
 	}
@@ -206,8 +205,8 @@ void TransportManager::moveTroops()
 	{
 		//unload troops 
 		//and return? 
-	
-		
+
+
 		// get the unit's current command
 		BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
 
@@ -218,11 +217,11 @@ void TransportManager::moveTroops()
 		}
 
 		_transportShip->unloadAll(_transportShip->getPosition(), true);
-		
+
 		_isFull = false;
 		_finishUnload = true;
 	}
-	
+
 }
 
 void TransportManager::followPerimeter(int clockwise)

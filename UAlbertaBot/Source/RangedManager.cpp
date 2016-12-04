@@ -131,11 +131,12 @@ int RangedManager::getAttackPriority(BWAPI::Unit rangedUnit, BWAPI::Unit target)
 
 
 	if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Wraith
-		&& target->getType() == BWAPI::UnitTypes::Terran_Missile_Turret
-		&& (BWAPI::Broodwar->self()->deadUnitCount(BWAPI::UnitTypes::Terran_Wraith) == 0))
+		&& (target->getType() == BWAPI::UnitTypes::Terran_Missile_Turret || target->getType() == BWAPI::UnitTypes::Protoss_Photon_Cannon)
+		&& (BWAPI::Broodwar->self()->deadUnitCount(BWAPI::UnitTypes::Terran_Wraith) < 2))
 	{
-		return 13;
+		return 50;
 	}
+
 
     
     if (rangedUnit->getType() == BWAPI::UnitTypes::Zerg_Scourge)
@@ -286,6 +287,10 @@ void RangedManager::assignTargetsNew(const BWAPI::Unitset & targets)
             {
 			    Micro::MutaDanceTarget(attacker, target);
             }
+			else if (attacker->getType() = BWAPI::UnitTypes::Terran_Wraith && attacker->isCloaked())
+			{
+				Micro::SmartAttackUnit(attacker, target);
+			}
             else
             {
                 Micro::SmartKiteTarget(attacker, target);

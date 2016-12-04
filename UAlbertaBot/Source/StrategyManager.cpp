@@ -5,10 +5,11 @@
 using namespace UAlbertaBot;
 
 // constructor
-StrategyManager::StrategyManager() 
+StrategyManager::StrategyManager()
 	: _selfRace(BWAPI::Broodwar->self()->getRace())
 	, _enemyRace(BWAPI::Broodwar->enemy()->getRace())
-    , _emptyBuildOrder(BWAPI::Broodwar->self()->getRace())
+	, _emptyBuildOrder(BWAPI::Broodwar->self()->getRace())
+
 {
 	
 }
@@ -41,6 +42,18 @@ const BuildOrder & StrategyManager::getOpeningBookBuildOrder() const
     }
 }
 
+const bool StrategyManager::isRich() const
+{
+	if (BWAPI::Broodwar->self()->minerals() < 3000)
+	{
+		if(BWAPI::Broodwar->self()->minerals() > 1500)
+		{ 
+			return true;
+		}
+	}
+	return false;
+}
+
 const bool StrategyManager::shouldExpandNow() const
 {
 	// if there is no place to expand to, we can't expand
@@ -71,7 +84,7 @@ const bool StrategyManager::shouldExpandNow() const
     }
 
     // we will make expansion N after array[N] minutes have passed
-    std::vector<int> expansionTimes = {5, 10, 20, 30, 40 , 50};
+    std::vector<int> expansionTimes = {10, 20, 30, 40 , 50};
 
     for (size_t i(0); i < expansionTimes.size(); ++i)
     {
@@ -211,6 +224,8 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 	int numBarrack      = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Barracks);
 	int numAcademy      = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Academy);
 	int numTurret		= BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Missile_Turret);
+	int numFactory		= BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Terran_Factory);
+
 	int numMedics       = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Medic);
 	int numWraith       = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Wraith);
     int numVultures     = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Terran_Vulture);
@@ -250,6 +265,18 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
     } 
 	else if (Config::Strategy::StrategyName == "Terran_Drop")
 	{
+		if (isRich()) {
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + numBarrack));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Medic, numMedics + 2));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + numStarport));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numVultures + numFactory));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + numBarrack));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Medic, numMedics + 2));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + numStarport));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numVultures + numFactory));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + numBarrack));
+		}
+
 		if (numBarrack < 3) {
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Barracks, numBarrack + 1));
 		}
@@ -270,14 +297,9 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		}
 		else 
 		{
-			if(numMarines < 23)
-			{
-				goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
-			}
-			else
-			{
-				goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
-			}
+			
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
+			
 		}
 		if (numDropship < 1) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Dropship, numDropship + 1));
@@ -299,6 +321,10 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 				goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Missile_Turret, 1));
 			}
 		}
+
+		goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
+
+		
 	}
 	else 
     {
@@ -315,6 +341,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 
 	return goal;
 }
+
 
 const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 {
