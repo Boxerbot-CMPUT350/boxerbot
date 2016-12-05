@@ -200,7 +200,7 @@ void TransportManager::moveTroops()
 
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 
-	if (_transportShip->getDistance(enemyBaseLocation->getPosition()) < 350 || transportHP < 100 || isUnitnearby())
+	if (_transportShip->getDistance(enemyBaseLocation->getPosition()) < 410 || transportHP < 100 || isUnitnearby())
 		
 	{
 		if (!_transportShip->canUnloadAtPosition(_transportShip->getPosition())) 
