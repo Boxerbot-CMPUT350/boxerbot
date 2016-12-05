@@ -273,13 +273,29 @@ void Micro::SmartKiteTarget(BWAPI::Unit rangedUnit, BWAPI::Unit target)
 	// if we can't shoot, run away
 	if (kite)
 	{
-		BWAPI::Position fleePosition(rangedUnit->getPosition() - target->getPosition() + rangedUnit->getPosition());
-		//BWAPI::Broodwar->drawLineMap(rangedUnit->getPosition(), fleePosition, BWAPI::Colors::Cyan);
-		Micro::SmartMove(rangedUnit, fleePosition);
+		if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Wraith && rangedUnit->isCloaked())
+		{
+
+		}
+		else if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Marine && rangedUnit->isStimmed())
+		{
+			Micro::SmartAttackUnit(rangedUnit, target);
+		}
+		else 
+		{
+			BWAPI::Position fleePosition(rangedUnit->getPosition() - target->getPosition() + rangedUnit->getPosition());
+			//BWAPI::Broodwar->drawLineMap(rangedUnit->getPosition(), fleePosition, BWAPI::Colors::Cyan);
+			Micro::SmartMove(rangedUnit, fleePosition);
+		}
+		
 	}
 	// otherwise shoot
 	else
 	{
+		if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Marine && !rangedUnit->isStimmed() && rangedUnit->getHitPoints() > 30 && rangedUnit->canUseTech(BWAPI::TechTypes::Stim_Packs))
+		{
+			rangedUnit->useTech(BWAPI::TechTypes::Stim_Packs, rangedUnit);
+		}
 		Micro::SmartAttackUnit(rangedUnit, target);
 	}
 }

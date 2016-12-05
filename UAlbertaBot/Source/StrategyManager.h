@@ -50,6 +50,8 @@ class StrategyManager
     int                             _totalGamesPlayed;
     const BuildOrder                _emptyBuildOrder;
 
+	
+
 
 	        void	                writeResults();
 	const	int					    getScore(BWAPI::Player player) const;
@@ -63,7 +65,8 @@ class StrategyManager
 public:
     
 	static	StrategyManager &	    Instance();
-
+	//Get second upgrade of infantry weapon
+	
 			void				    onEnd(const bool isWinner);
             void                    addStrategy(const std::string & name, Strategy & strategy);
             void                    setLearnedStrategy();
