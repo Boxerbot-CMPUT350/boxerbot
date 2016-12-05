@@ -281,7 +281,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		}
 
 		if (numStarport < 1) {
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Starport, 1));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Starport, 1));
 		}
 
 
@@ -319,12 +319,12 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		}
 		if (numControlTower < numStarport) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Terran_Infantry_Weapons, 1));
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Control_Tower, numStarport));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Control_Tower, numStarport));
 		}
 
 		if (numMachineShop < numFactory) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Terran_Infantry_Weapons, 1));
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Machine_Shop, 1));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Machine_Shop, 1));
 		}
 		if (numDropship < 1) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Dropship, numDropship + 1));
@@ -334,7 +334,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		if (numControlTower > 0 && numMarines > 10)
 		{
 			if (numAcademy < 1) {
-				goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Academy, 1));
+				goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Academy, 1));
 			}
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + 1));
@@ -347,7 +347,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		}
 		if (InformationManager::Instance().enemyHasCloakedUnits())
 		{
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Science_Vessel, 1));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Science_Vessel, 1));
 		}
 
 

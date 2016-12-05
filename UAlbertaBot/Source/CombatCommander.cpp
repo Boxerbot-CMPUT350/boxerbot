@@ -116,7 +116,7 @@ void CombatCommander::updateDropAttackPriority()
 		
 	}
 
-	SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 1500, "Attack Enemy Base");
+	SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 600, "Attack Enemy Base");
 	DropAttackSquad.setSquadOrder(dropOrder);
 	
 
