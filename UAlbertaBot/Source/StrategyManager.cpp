@@ -299,7 +299,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 
 		if (numScience > 0)
 		{
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Terran_Infantry_Weapons, 2));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Terran_Infantry_Weapons, 3));
 			
 		}
 
