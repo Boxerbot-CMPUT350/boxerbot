@@ -42,7 +42,7 @@
         
         "DrawGameInfo"              : false,   
         "DrawUnitHealthBars"        : false,
-        "DrawProductionInfo"        : true, 
+        "DrawProductionInfo"        : false, 
         "DrawBuildOrderSearchInfo"  : false,
         "DrawScoutInfo"             : false,
         "DrawEnemyUnitInfo"         : false,
@@ -52,11 +52,11 @@
         "DrawUnitTargetInfo"        : false,
         "DrawBWTAInfo"              : false,
         "DrawMapGrid"               : false,
-        "DrawSquadInfo"             : true,
+        "DrawSquadInfo"             : false,
         "DrawWorkerInfo"            : false,
         "DrawMouseCursorInfo"       : false,
         "DrawBuildingInfo"          : false,
-        "DrawReservedBuildingTiles" : true,
+        "DrawReservedBuildingTiles" : false,
         "DrawBOSSStateInfo"         : false,
         "PrintModuleTimeout"        : false
     },
