@@ -279,10 +279,6 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 
 		}
 
-		if (numBarrack < 3 && numStarport >= 1) {
-			
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
-		}
 		if (numStarport < 1) {
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Starport, 1));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
@@ -343,6 +339,7 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Terran_Science_Vessel, 1));
 		}
+
 
 	}
 	else 

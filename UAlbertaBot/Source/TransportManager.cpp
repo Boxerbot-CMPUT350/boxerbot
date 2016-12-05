@@ -147,7 +147,7 @@ void TransportManager::moveTransport()
 		return;
 	}
 
-	if (!(_transportShip->getLoadedUnits().size() < 8) && (_transportShip->getDistance(mylocation->getPosition()) < 850))
+	if ((_transportShip->getLoadedUnits().size() >= 8) && (_transportShip->getDistance(mylocation->getPosition()) < 850))
 	{
 		_finishUnload = false;
 	}
@@ -200,10 +200,13 @@ void TransportManager::moveTroops()
 
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 
-	if ((_transportShip->getDistance(enemyBaseLocation->getPosition()) < 600 || transportHP < 100 || isUnitnearby())
-		&& _transportShip->canUnloadAtPosition(_transportShip->getPosition()))
-	{
+	if (_transportShip->getDistance(enemyBaseLocation->getPosition()) < 600 || transportHP < 100 || isUnitnearby())
 		
+	{
+		if (!_transportShip->canUnloadAtPosition(_transportShip->getPosition())) 
+		{
+			return;
+		}
 		//unload troops 
 		//and return? 
 		if (_transportShip->isUnderAttack() || isUnitnearby()) {
@@ -218,18 +221,19 @@ void TransportManager::moveTroops()
 		{
 			return;
 		}
+		
+		_transportShip->unloadAll(_transportShip->getPosition(), true);
 		_isFull = false;
 		_finishUnload = true;
-		_transportShip->unloadAll(_transportShip->getPosition(), true);
-
 	}
 
 }
 
-bool TransportManager::isUnitnearby()
+bool TransportManager::isUnitnearby() const
 {
 
 	BWAPI::Unitset enemyNear;
+	
 
 	MapGrid::Instance().GetUnits(enemyNear, _transportShip->getPosition(), 800, false, true);
 

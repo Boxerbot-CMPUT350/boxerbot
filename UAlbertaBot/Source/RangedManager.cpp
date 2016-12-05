@@ -302,7 +302,16 @@ void RangedManager::assignTargetsNew(const BWAPI::Unitset & targets)
         {
             if (attacker->getType() == BWAPI::UnitTypes::Zerg_Mutalisk || attacker->getType() == BWAPI::UnitTypes::Terran_Vulture)
             {
-			    Micro::MutaDanceTarget(attacker, target);
+				if (attacker->getType() == BWAPI::UnitTypes::Terran_Vulture && attacker->getSpiderMineCount() > 0)
+				{
+					Micro::SmartLaySpiderMine(attacker, attacker->getPosition());
+					Micro::MutaDanceTarget(attacker, target);
+				}
+				else
+				{
+					Micro::MutaDanceTarget(attacker, target);
+				}
+
             }
 			else if (attacker->getType() = BWAPI::UnitTypes::Terran_Wraith && attacker->isCloaked())
 			{

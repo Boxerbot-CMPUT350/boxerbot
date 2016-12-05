@@ -14,6 +14,7 @@ const size_t BunkerPriority = 6;
 CombatCommander::CombatCommander() 
     : _initialized(false)
 	, _unload(false)
+	, _once(false)
 {
 
 }
@@ -95,10 +96,11 @@ void CombatCommander::updateDropAttackPriority()
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 	for (auto & unit : _combatUnits)
 	{
-		if (unit->getType() == BWAPI::UnitTypes::Terran_Dropship || unit->isFlying())
+		if (unit->getType() == BWAPI::UnitTypes::Terran_Dropship || unit->isFlying() )
 		{
 			continue;
 		}
+		
 
 		if (unit->isUnderAttack() && unit->getSpiderMineCount() > 0) {
 			unit->useTech(BWAPI::TechTypes::Spider_Mines, unit->getPosition());
@@ -182,6 +184,8 @@ void CombatCommander::updateDropSquads()
 
     Squad & dropSquad = _squadData.getSquad("Drop");
 	Squad & dropAttackSquad = _squadData.getSquad("DAttack");
+	Squad & mainAttackSquad = _squadData.getSquad("MainAttack");
+	auto & attackSquad = mainAttackSquad.getUnits();
 
     // figure out how many units the drop squad needs
     bool dropSquadHasTransport = false;
@@ -203,12 +207,12 @@ void CombatCommander::updateDropSquads()
         {
             transportSpotsRemaining -= unit->getType().spaceRequired();
         }
-		
 		if (unit != transportShip && unit->getDistance(enemyBaseLocation->getPosition()) < 500)
 		{
 			SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 1500, "Attack Enemy Base");
 			dropSquad.setSquadOrder(dropOrder);
 		}
+		
 		if (unit == transportShip && unit->getLoadedUnits().size() == 0 && unit->getDistance(enemyBaseLocation->getPosition()) < 500) {
 			unit->rightClick(myLocation->getPosition());
 			transportSpotsRemaining = 8;
@@ -235,12 +239,29 @@ void CombatCommander::updateDropSquads()
             }
 			
             // get every unit of a lower priority and put it into the attack squad
-            if (!unit->getType().isWorker() && _squadData.canAssignUnitToSquad(unit, dropSquad) && unit->getDistance(myLocation->getPosition()) < 1200)
-            {
-                _squadData.assignUnitToSquad(unit, dropSquad);
-				
-                transportSpotsRemaining -= unit->getType().spaceRequired();
-            }
+			if (!_once)
+			{
+				if (!unit->getType().isWorker() && _squadData.canAssignUnitToSquad(unit, dropSquad) && unit->getDistance(myLocation->getPosition()) < 1200)
+				{
+					_squadData.assignUnitToSquad(unit, dropSquad);
+
+					transportSpotsRemaining -= unit->getType().spaceRequired();
+				}
+				if (transportSpotsRemaining == 0)
+				{
+					_once = true;
+				}
+			}
+			else
+			{
+				if (!unit->getType().isWorker() && _squadData.canAssignUnitToSquad(unit, dropSquad) && unit->getDistance(myLocation->getPosition()) < 1200 && attackSquad.size() > 25)
+				{
+					_squadData.assignUnitToSquad(unit, dropSquad);
+
+					transportSpotsRemaining -= unit->getType().spaceRequired();
+				}
+			}
+           
         }
     }
     // otherwise the drop squad is full, so execute the order
