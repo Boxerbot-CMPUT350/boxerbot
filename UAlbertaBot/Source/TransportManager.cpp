@@ -147,7 +147,7 @@ void TransportManager::moveTransport()
 		return;
 	}
 
-	if ((_transportShip->getLoadedUnits().size() >= 8) && (_transportShip->getDistance(mylocation->getPosition()) < 850))
+	if (!(_transportShip->getLoadedUnits().size() < 8) && (_transportShip->getDistance(mylocation->getPosition()) < 850))
 	{
 		_finishUnload = false;
 	}
@@ -166,8 +166,8 @@ void TransportManager::moveTransport()
 		return;
 	}
 
-	if (_transportShip->isUnderAttack() || isUnitnearby()) {
-		_transportShip->unloadAll(_transportShip->getPosition(), true);
+	if (_transportShip->isUnderAttack()) {
+		_transportShip->unloadAll(true);
 	}
 
 	// Check that the dropship is full before leaving to the enemy base
@@ -200,18 +200,12 @@ void TransportManager::moveTroops()
 
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 
-	if (_transportShip->getDistance(enemyBaseLocation->getPosition()) < 600 || transportHP < 100 || isUnitnearby())
-		
+	if ((_transportShip->getDistance(enemyBaseLocation->getPosition()) < 450 || transportHP < 100)
+		&& _transportShip->canUnloadAtPosition(_transportShip->getPosition()))
 	{
-		if (!_transportShip->canUnloadAtPosition(_transportShip->getPosition())) 
-		{
-			return;
-		}
 		//unload troops 
 		//and return? 
-		if (_transportShip->isUnderAttack() || isUnitnearby()) {
-			_transportShip->unloadAll(_transportShip->getPosition(), true);
-		}
+
 
 		// get the unit's current command
 		BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
@@ -221,13 +215,15 @@ void TransportManager::moveTroops()
 		{
 			return;
 		}
-		
+
 		_transportShip->unloadAll(_transportShip->getPosition(), true);
+
 		_isFull = false;
 		_finishUnload = true;
 	}
 
 }
+
 
 bool TransportManager::isUnitnearby() const
 {
