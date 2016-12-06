@@ -13,7 +13,7 @@ namespace Config
     namespace Strategy
     {
         std::string ProtossStrategyName     = "Protoss_ZealotRush";
-        std::string TerranStrategyName      = "Terran_MarineRush";
+        std::string TerranStrategyName      = "Terran_Drop";
         std::string ZergStrategyName        = "Zerg_3HatchMuta";
         std::string StrategyName            = "Protoss_ZealotRush";
         std::string ReadDir                 = "bwapi-data/read/";
@@ -41,8 +41,8 @@ namespace Config
 
     namespace BotInfo
     {
-        std::string BotName                 = "UAlbertaBot";
-        std::string Authors                 = "Dave Churchill";
+        std::string BotName                 = "Boxerbot";
+        std::string Authors                 = "Boxerbot";
         bool PrintInfoOnStart               = false;
     }
 

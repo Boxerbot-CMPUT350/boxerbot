@@ -47,7 +47,19 @@ void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
                     if (rangedUnit->getType() == BWAPI::UnitTypes::Zerg_Mutalisk || rangedUnit->getType() == BWAPI::UnitTypes::Terran_Vulture)
                     {
 						
-				        Micro::MutaDanceTarget(rangedUnit, target);
+						if (rangedUnit->getType() == BWAPI::UnitTypes::Terran_Vulture && rangedUnit->getSpiderMineCount() > 0)
+						{
+							rangedUnit->useTech(BWAPI::TechTypes::Spider_Mines);
+							Micro::MutaDanceTarget(rangedUnit, target);
+						}
+						else if (rangedUnit->getType() = BWAPI::UnitTypes::Terran_Wraith && rangedUnit->isCloaked())
+						{
+							Micro::SmartAttackUnit(rangedUnit, target);
+						}
+						else
+						{
+							Micro::SmartKiteTarget(rangedUnit, target);
+						}
 						
                     }
                     else

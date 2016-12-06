@@ -2,7 +2,7 @@
     "Bot Info" :
     {
         "BotName"                   : "Boxerbot",
-        "Authors"                   : "David Churchill",
+        "Authors"                   : "Boxerbot",
         "PrintInfoOnStart"          : false
     },
         
