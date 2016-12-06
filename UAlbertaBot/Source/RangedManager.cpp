@@ -304,7 +304,7 @@ void RangedManager::assignTargetsNew(const BWAPI::Unitset & targets)
             {
 				if (attacker->getType() == BWAPI::UnitTypes::Terran_Vulture && attacker->getSpiderMineCount() > 0)
 				{
-					Micro::SmartLaySpiderMine(attacker, attacker->getPosition());
+					attacker->useTech(BWAPI::TechTypes::Spider_Mines);
 					Micro::MutaDanceTarget(attacker, target);
 				}
 				else
