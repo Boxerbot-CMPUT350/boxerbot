@@ -167,7 +167,7 @@ void TransportManager::moveTransport()
 	}
 
 	if (_transportShip->isUnderAttack()) {
-		_transportShip->unloadAll(true);
+		_transportShip->unloadAll(_transportShip->getPosition());
 	}
 
 	// Check that the dropship is full before leaving to the enemy base
@@ -195,7 +195,7 @@ void TransportManager::moveTroops()
 	int transportHP = _transportShip->getHitPoints() + _transportShip->getShields();
 
 	if (_transportShip->isUnderAttack()) {
-		_transportShip->unloadAll(true);
+		_transportShip->unloadAll(_transportShip->getPosition());
 	}
 
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
@@ -216,7 +216,7 @@ void TransportManager::moveTroops()
 			return;
 		}
 
-		_transportShip->unloadAll(_transportShip->getPosition(), true);
+		_transportShip->unloadAll(_transportShip->getPosition());
 
 		_isFull = false;
 		_finishUnload = true;
