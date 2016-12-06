@@ -1,7 +1,7 @@
 {
     "Bot Info" :
     {
-        "BotName"                   : "UAlbertaBot",
+        "BotName"                   : "Boxerbot",
         "Authors"                   : "David Churchill",
         "PrintInfoOnStart"          : false
     },
