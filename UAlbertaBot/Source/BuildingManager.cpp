@@ -428,11 +428,8 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
     }
 
 	// Determines the closest chokepoint to the Command Center
-	//BWTA::BaseLocation * selfBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self())->getPosition();
 	BWAPI::Position baseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self())->getPosition();
-	//BWTA::Chokepoint * baseChokepoint = BWTA::getNearestChokepoint(baseLocation)->getCenter();
 	BWAPI::Position chokeLocation = BWTA::getNearestChokepoint(baseLocation)->getCenter();
-	//BWAPI::TilePosition tile = BWAPI::TilePosition(chokeLocation);
 
 	if (b.type == BWAPI::UnitTypes::Terran_Bunker) {
 		
@@ -514,14 +511,6 @@ BWAPI::TilePosition BuildingManager::getBuildLocationNearBunker(const Building &
 				if (BuildingPlacer::Instance().canBuildHere(closestToBunker[i], b))
 				{	
 					return closestToBunker[i];
-
-					//int dist_x = abs(chokeLocation.x - closestToBunker[i].x);
-					//int dist_y = abs(chokeLocation.y - closestToBunker[i].y);
-					//double sq_dist = (sqrt(dist_x*dist_x + dist_y*dist_y))/32;
-					//if (sq_dist < dist*84)
-					//{
-					//	return closestToBunker[i];
-					//}
 				}
 			}
 		}
