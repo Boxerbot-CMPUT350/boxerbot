@@ -234,13 +234,13 @@ void TransportManager::followPerimeter(BWAPI::Position to, BWAPI::Position from)
 		_waypoints.push_back(_mapEdgeVertices[wpIDX.first]);
 		_waypoints.push_back(_mapEdgeVertices[wpIDX.second]);
 
-		BWAPI::Broodwar->printf("WAYPOINTS: [%d] - [%d]", wpIDX.first, wpIDX.second);
+
 
 		Micro::SmartMove(_transportShip, _waypoints[0]);
 	}
 	else if (_waypoints.size() > 1 && _transportShip->getDistance(_waypoints[0]) < 100)
 	{
-		BWAPI::Broodwar->printf("FOLLOW PERIMETER TO SECOND WAYPOINT!");
+		
 		//follow perimeter to second waypoint!
 		//clockwise or counterclockwise?
 		int closestPolygonIndex = getClosestVertexIndex(_transportShip);
@@ -249,13 +249,13 @@ void TransportManager::followPerimeter(BWAPI::Position to, BWAPI::Position from)
 		if (_mapEdgeVertices[(closestPolygonIndex + 1) % _mapEdgeVertices.size()].getApproxDistance(_waypoints[1]) <
 			_mapEdgeVertices[(closestPolygonIndex - 1) % _mapEdgeVertices.size()].getApproxDistance(_waypoints[1]))
 		{
-			BWAPI::Broodwar->printf("FOLLOW clockwise");
+		
 			following = 1;
 			followPerimeter(following);
 		}
 		else
 		{
-			BWAPI::Broodwar->printf("FOLLOW counter clockwise");
+			
 			following = -1;
 			followPerimeter(following);
 		}
@@ -310,8 +310,7 @@ int TransportManager::getClosestVertexIndex(BWAPI::Position p)
 
 std::pair<int, int> TransportManager::findSafePath(BWAPI::Position to, BWAPI::Position from)
 {
-	BWAPI::Broodwar->printf("FROM: [%d,%d]", from.x, from.y);
-	BWAPI::Broodwar->printf("TO: [%d,%d]", to.x, to.y);
+	
 
 
 	//closest map edge point to destination
@@ -361,7 +360,7 @@ std::pair<int, int> TransportManager::findSafePath(BWAPI::Position to, BWAPI::Po
 		p.erase(p.begin() + maxIndex);
 	}
 
-	//BWAPI::Broodwar->printf("new p: [%d,%d] [%d,%d]", p[0].x, p[0].y, p[1].x, p[1].y);
+
 
 	//get the one that works best from the two.
 	BWAPI::Position waypoint = (enemyEdge.getApproxDistance(p[0]) < enemyEdge.getApproxDistance(p[1])) ? p[0] : p[1];
