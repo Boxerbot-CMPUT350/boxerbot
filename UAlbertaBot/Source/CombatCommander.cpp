@@ -92,7 +92,9 @@ void CombatCommander::update(const BWAPI::Unitset & combatUnits)
 
 void CombatCommander::updateDropAttackPriority()
 {
-	Squad & DropAttackSquad = _squadData.getSquad("DAttack");
+	/*Squad & DropAttackSquad = _squadData.getSquad("DAttack");
+	Squad & dropSquad = _squadData.getSquad("Drop");
+	auto & dropUnits = dropSquad.getUnits();
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 	for (auto & unit : _combatUnits)
 	{
@@ -107,9 +109,7 @@ void CombatCommander::updateDropAttackPriority()
 		}
 
 		// get every unit of a lower priority and put it into the attack squad
-		if (!unit->getType().isWorker()
-			&& _squadData.canAssignUnitToSquad(unit, DropAttackSquad)
-			&& unit->getDistance(enemyBaseLocation->getPosition()) < 1000)
+		if ( _squadData.canAssignUnitToSquad(unit, DropAttackSquad) && unit->getDistance(enemyBaseLocation->getPosition()) < 650)
 		{
 			_squadData.assignUnitToSquad(unit, DropAttackSquad);
 		}
@@ -119,7 +119,7 @@ void CombatCommander::updateDropAttackPriority()
 	SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 600, "Attack Enemy Base");
 	DropAttackSquad.setSquadOrder(dropOrder);
 	
-
+	*/
 }
 
 void CombatCommander::updateIdleSquad()
@@ -170,7 +170,7 @@ void CombatCommander::updateAttackSquads()
     }
 	const BWAPI::Unitset & units = mainAttackSquad.getUnits();
 	if (units.size() > 15) {
-		SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
+		SquadOrder mainAttackOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 800, "Attack Enemy Base");
 		mainAttackSquad.setSquadOrder(mainAttackOrder);
 	}
 }
@@ -207,13 +207,9 @@ void CombatCommander::updateDropSquads()
         {
             transportSpotsRemaining -= unit->getType().spaceRequired();
         }
-		if (unit != transportShip && unit->getDistance(enemyBaseLocation->getPosition()) < 500)
-		{
-			SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 1500, "Attack Enemy Base");
-			dropSquad.setSquadOrder(dropOrder);
-		}
+
 		
-		if (unit == transportShip && unit->getLoadedUnits().size() == 0 && unit->getDistance(enemyBaseLocation->getPosition()) < 500) {
+		if (unit == transportShip && unit->getLoadedUnits().size() == 0 && unit->getDistance(enemyBaseLocation->getPosition()) < 1000) {
 			unit->rightClick(myLocation->getPosition());
 			transportSpotsRemaining = 8;
 		} 

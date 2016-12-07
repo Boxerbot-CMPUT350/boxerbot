@@ -9,8 +9,6 @@ TransportManager::TransportManager() :
 	, _maxCorner(-1, -1)
 	, _to(-1, -1)
 	, _from(-1, -1)
-	, _isFull(false)
-	, _finishUnload(false)
 {
 }
 
@@ -22,6 +20,7 @@ void TransportManager::executeMicro(const BWAPI::Unitset & targets)
 	{
 		return;
 	}
+
 }
 
 void TransportManager::calculateMapEdgeVertices()
@@ -54,7 +53,7 @@ void TransportManager::calculateMapEdgeVertices()
 	_minCorner = BWAPI::Position(minX, minY) * 32 + BWAPI::Position(16, 16);
 	_maxCorner = BWAPI::Position(maxX, maxY) * 32 + BWAPI::Position(16, 16);
 
-	//add all(some) edge tiles! 
+	//add all(some) edge tiles!
 	for (int _x = minX; _x <= maxX; _x += 5)
 	{
 		unsortedVertices.insert(BWAPI::Position(_x, minY) * 32 + BWAPI::Position(16, 16));
@@ -119,9 +118,16 @@ void TransportManager::drawTransportInformation(int x = 0, int y = 0)
 
 void TransportManager::update()
 {
+	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
+
 	if (!_transportShip && getUnits().size() > 0)
 	{
-		_transportShip = *getUnits().begin();
+		for (auto & unit : getUnits()) {
+			if (unit->isFlying()) {
+				setTransportShip(unit);
+				BWAPI::Broodwar->printf("SET SHIP");
+			}
+		}
 	}
 
 	// calculate enemy region vertices if we haven't yet
@@ -130,29 +136,16 @@ void TransportManager::update()
 		calculateMapEdgeVertices();
 	}
 
-	moveTroops();
 	moveTransport();
+	moveTroops();
 
 	drawTransportInformation();
 }
 
 void TransportManager::moveTransport()
 {
-
-	BWTA::BaseLocation * mylocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
-
 	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0))
-	{
-		return;
-	}
-
-	if ((_transportShip->getLoadedUnits().size() >= 8) && (_transportShip->getDistance(mylocation->getPosition()) < 850))
-	{
-		_finishUnload = false;
-	}
-
-	if (_finishUnload)
 	{
 		return;
 	}
@@ -161,57 +154,42 @@ void TransportManager::moveTransport()
 	BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
 	if ((currentCommand.getType() == BWAPI::UnitCommandTypes::Unload_All
 		|| currentCommand.getType() == BWAPI::UnitCommandTypes::Unload_All_Position)
-		&& _isFull)
+		&& _transportShip->getLoadedUnits().size() > 0)
 	{
 		return;
 	}
+	_from = _transportShip->getPosition();
+	_to = enemyBaseLocation->getPosition();
 
-	if (_transportShip->isUnderAttack() || isUnitnearby()) {
-		_transportShip->unloadAll(_transportShip->getPosition(), true);
-	}
-
-	// Check that the dropship is full before leaving to the enemy base
-	if (_transportShip->getSpaceRemaining() == 0)
+	BWAPI::Broodwar->printf("FROM: [%d,%d]", _from.x, _from.y);
+	BWAPI::Broodwar->printf("TO: [%d,%d]", _to.x, _to.y);
+	BWAPI::Broodwar->printf("%d", _transportShip->getSpaceRemaining());
+	BWAPI::Broodwar->printf("%i %i", _to.isValid(), _from.isValid());
+	if (_to.isValid() && _from.isValid() && (_transportShip->getSpaceRemaining() == 0))
 	{
-		if (_to.isValid() && _from.isValid())
-		{
-			followPerimeter(_to, _from);
-		}
-		else
-		{
-			followPerimeter();
-		}
+		followPerimeter(_to, _from);
+	}
+	else
+	{
+		return;
 	}
 }
 
 void TransportManager::moveTroops()
 {
-	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0) || (_transportShip->getLoadedUnits().size() < 8))
+	if (!_transportShip || !_transportShip->exists() || !(_transportShip->getHitPoints() > 0))
 	{
 		return;
 	}
-
 	//unload zealots if close enough or dying
 	int transportHP = _transportShip->getHitPoints() + _transportShip->getShields();
-
-	if (_transportShip->isUnderAttack()) {
-		_transportShip->unloadAll(true);
-	}
-
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 
-	if (_transportShip->getDistance(enemyBaseLocation->getPosition()) < 350 || transportHP < 100 || isUnitnearby())
-
+	if ((enemyBaseLocation && (_transportShip->getDistance(enemyBaseLocation->getPosition()) < 500) || (transportHP < 100)
+		&& _transportShip->canUnloadAtPosition(_transportShip->getPosition())))
 	{
-		if (!_transportShip->canUnloadAtPosition(_transportShip->getPosition()))
-		{
-			return;
-		}
-		//unload troops 
-		//and return? 
-		if (_transportShip->isUnderAttack() || isUnitnearby()) {
-			_transportShip->unloadAll(_transportShip->getPosition(), true);
-		}
+		//unload troops
+		//and return?
 
 		// get the unit's current command
 		BWAPI::UnitCommand currentCommand(_transportShip->getLastCommand());
@@ -222,22 +200,12 @@ void TransportManager::moveTroops()
 			return;
 		}
 
-		_transportShip->unloadAll(_transportShip->getPosition(), true);
-		_isFull = false;
-		_finishUnload = true;
+
+		//else 
+		BWAPI::Broodwar->printf("Unloaded troops");
+		_transportShip->unloadAll(_transportShip->getPosition());
+
 	}
-
-}
-
-bool TransportManager::isUnitnearby() const
-{
-
-	BWAPI::Unitset enemyNear;
-
-
-	MapGrid::Instance().GetUnits(enemyNear, _transportShip->getPosition(), 300, false, true);
-
-	return enemyNear.size() > 0;
 
 }
 
@@ -262,7 +230,7 @@ void TransportManager::followPerimeter(BWAPI::Position to, BWAPI::Position from)
 		return;
 	}
 
-	//assume we're near FROM! 
+	//assume we're near FROM!
 	if (_transportShip->getDistance(from) < 50 && _waypoints.empty())
 	{
 		//compute waypoints
@@ -279,8 +247,8 @@ void TransportManager::followPerimeter(BWAPI::Position to, BWAPI::Position from)
 	else if (_waypoints.size() > 1 && _transportShip->getDistance(_waypoints[0]) < 100)
 	{
 		BWAPI::Broodwar->printf("FOLLOW PERIMETER TO SECOND WAYPOINT!");
-		//follow perimeter to second waypoint! 
-		//clockwise or counterclockwise? 
+		//follow perimeter to second waypoint!
+		//clockwise or counterclockwise?
 		int closestPolygonIndex = getClosestVertexIndex(_transportShip);
 		UAB_ASSERT_WARNING(closestPolygonIndex != -1, "Couldn't find a closest vertex");
 
