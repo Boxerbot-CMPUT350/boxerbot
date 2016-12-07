@@ -45,7 +45,7 @@ const BuildOrder & StrategyManager::getOpeningBookBuildOrder() const
 
 const bool StrategyManager::isRich() const
 {
-	if (BWAPI::Broodwar->self()->minerals() < 2000 && BWAPI::Broodwar->self()->minerals() > 1000)
+	if (BWAPI::Broodwar->self()->minerals() < 2000 && BWAPI::Broodwar->self()->minerals() > 750)
 	{
 		return true;
 	}
@@ -271,6 +271,14 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 	else if (Config::Strategy::StrategyName == "Terran_Drop")
 	{
 		
+		if (isRich())
+		{
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, 5));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, 10));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Vulture, 15));
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, 15));
+		}
+
 		if (numStarport < 1) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Starport, 1));
 		}
@@ -306,6 +314,8 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		{
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Science_Vessel, 1));
 		}
+
+
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numMedics + 1));
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + 1));
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Vulture, numVultures + 2));
