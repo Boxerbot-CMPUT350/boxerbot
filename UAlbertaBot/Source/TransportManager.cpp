@@ -125,7 +125,6 @@ void TransportManager::update()
 		for (auto & unit : getUnits()) {
 			if (unit->isFlying()) {
 				setTransportShip(unit);
-				BWAPI::Broodwar->printf("SET SHIP");
 			}
 		}
 	}
@@ -161,10 +160,7 @@ void TransportManager::moveTransport()
 	_from = _transportShip->getPosition();
 	_to = enemyBaseLocation->getPosition();
 
-	BWAPI::Broodwar->printf("FROM: [%d,%d]", _from.x, _from.y);
-	BWAPI::Broodwar->printf("TO: [%d,%d]", _to.x, _to.y);
-	BWAPI::Broodwar->printf("%d", _transportShip->getSpaceRemaining());
-	BWAPI::Broodwar->printf("%i %i", _to.isValid(), _from.isValid());
+
 	if (_to.isValid() && _from.isValid() && (_transportShip->getSpaceRemaining() == 0))
 	{
 		followPerimeter(_to, _from);
@@ -201,8 +197,6 @@ void TransportManager::moveTroops()
 		}
 
 
-		//else 
-		BWAPI::Broodwar->printf("Unloaded troops");
 		_transportShip->unloadAll(_transportShip->getPosition());
 
 	}

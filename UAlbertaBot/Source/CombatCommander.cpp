@@ -92,7 +92,7 @@ void CombatCommander::update(const BWAPI::Unitset & combatUnits)
 
 void CombatCommander::updateDropAttackPriority()
 {
-	/*Squad & DropAttackSquad = _squadData.getSquad("DAttack");
+	Squad & DropAttackSquad = _squadData.getSquad("DAttack");
 	Squad & dropSquad = _squadData.getSquad("Drop");
 	auto & dropUnits = dropSquad.getUnits();
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
@@ -119,7 +119,7 @@ void CombatCommander::updateDropAttackPriority()
 	SquadOrder dropOrder(SquadOrderTypes::Drop, getMainAttackLocation(), 600, "Attack Enemy Base");
 	DropAttackSquad.setSquadOrder(dropOrder);
 	
-	*/
+	
 }
 
 void CombatCommander::updateIdleSquad()
