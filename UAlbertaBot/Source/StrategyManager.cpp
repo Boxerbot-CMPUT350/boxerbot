@@ -273,8 +273,6 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 		
 		if (numStarport < 1) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Starport, 1));
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Vulture, numVultures + 1));
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + 1));
 		}
 
 		if (numControlTower > 0) {
@@ -285,19 +283,12 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 			goal.push_back(std::pair<MetaType, int>(BWAPI::TechTypes::Spider_Mines, 1));
 		}
 
-		if (numAcademy >= 1)
-		{
-			goal.push_back(std::pair<MetaType, int>(BWAPI::TechTypes::Stim_Packs,  1));
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Medic, numMedics + 1));
-		}
-
 		if (numControlTower < numStarport) {
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Terran_Infantry_Weapons, 1));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Control_Tower, numStarport));
 		}
 
 		if (numMachineShop < numFactory) {
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UpgradeTypes::Terran_Infantry_Weapons, 1));
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Machine_Shop, 1));
 		}
 		if (numDropship < 1) {
@@ -305,21 +296,17 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 8));
 		}
 
-		if (numControlTower > 0 && numMarines > 10)
-		{
-			if (numAcademy < 1) {
-				goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Academy, 1));
-			}
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 2));
-			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + 1));
-
+		if (numAcademy < 1) {
+			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Academy, 1));
 		}
+		if (numControlTower > 0 && numMarines > 10)
+		
 
 		if (InformationManager::Instance().enemyHasCloakedUnits())
 		{
 			goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Science_Vessel, 1));
 		}
-
+		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numMedics + 1));
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Wraith, numWraith + 1));
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Vulture, numVultures + 2));
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Terran_Marine, numMarines + 3));
